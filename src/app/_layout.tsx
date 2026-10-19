@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Text, Image } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { Store } from 'lucide-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 import { useTheme } from '@/theme';
 import { initOfflineDatabase } from '@/services/offlineStorage';
+import { AutoUpdateChecker } from '@/components/updates/AutoUpdateChecker';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -15,7 +16,7 @@ function RootNavigator() {
   const { session, currentBakery, isLoading, isInitialized } = useAuth();
   const segments = useSegments();
   const router = useRouter();
-  const { colors, typography, borderRadius } = useTheme();
+  const { colors, typography } = useTheme();
 
   useEffect(() => {
     // Initialize offline SQLite tables
@@ -65,21 +66,14 @@ function RootNavigator() {
   if (!isInitialized || isLoading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-        <View
-          style={[
-            styles.logoBadge,
-            {
-              backgroundColor: colors.primaryLight,
-              borderRadius: borderRadius.full,
-              marginBottom: 16,
-            },
-          ]}
-        >
-          <Store size={40} color={colors.primary} />
-        </View>
+        <Image
+          source={require('../../assets/images/app-logo.png')}
+          style={{ width: 84, height: 84, borderRadius: 20, marginBottom: 16 }}
+          resizeMode="contain"
+        />
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[typography.subtitle, { color: colors.textMuted, marginTop: 12 }]}>
-          Loading Bakery POS...
+          Loading BakeFlow POS...
         </Text>
       </View>
     );
@@ -90,12 +84,15 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <StatusBar style="auto" />
-        <RootNavigator />
-      </AuthProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <StatusBar style="auto" />
+          <RootNavigator />
+          <AutoUpdateChecker />
+        </AuthProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
 

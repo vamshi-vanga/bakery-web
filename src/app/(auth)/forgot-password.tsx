@@ -41,7 +41,9 @@ export default function ForgotPasswordScreen() {
     setSuccessMessage(null);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: 'bakery://reset-password',
+      });
 
       if (error) {
         haptic.error();
@@ -50,7 +52,7 @@ export default function ForgotPasswordScreen() {
       }
 
       haptic.success();
-      setSuccessMessage(`A 6-digit recovery code has been sent to ${email.trim()}`);
+      setSuccessMessage(`A recovery code has been sent to ${email.trim()}`);
 
       // Auto-navigate to reset password screen after a brief delay
       setTimeout(() => {
@@ -104,8 +106,8 @@ export default function ForgotPasswordScreen() {
               ]}
             >
               {successMessage
-                ? 'We sent a 6-digit code to reset your account password.'
-                : 'Enter your registered email and we will send a 6-digit recovery code.'}
+                ? 'We sent a recovery code to reset your account password.'
+                : 'Enter your registered email and we will send a recovery code.'}
             </Text>
           </View>
 

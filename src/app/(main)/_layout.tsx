@@ -4,9 +4,18 @@ import { Tabs } from 'expo-router';
 import { ShoppingBag, Cake, Boxes, BarChart3, Settings, Receipt } from 'lucide-react-native';
 import { useTheme } from '@/theme';
 import { haptic } from '@/utils/haptics';
+import { useAuthStore } from '@/stores/authStore';
+import { isSubscriptionActive } from '@/services/subscriptionService';
+import { SubscriptionPaywall } from '@/components/subscription/SubscriptionPaywall';
 
 export default function MainLayout() {
   const { colors, typography, borderRadius } = useTheme();
+  const currentBakery = useAuthStore((s) => s.currentBakery);
+
+  // Full-screen paywall: locks all POS screens until a plan or trial is picked
+  if (currentBakery && !isSubscriptionActive(currentBakery)) {
+    return <SubscriptionPaywall />;
+  }
 
   return (
     <Tabs

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Golden Baker's",
+    "name": "BakeFlow POS",
     "slug": "bakery",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,7 @@
       "package": "com.goldenbakers.pos",
       "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#141722",
+        "backgroundColor": "#141B33",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png"
       },
@@ -32,6 +32,7 @@
       "policy": "appVersion"
     },
     "updates": {
+      "url": "https://u.expo.dev/16531adb-805e-4010-8350-e603f8c5beda",
       "checkAutomatically": "ON_LOAD",
       "fallbackToCacheTimeout": 0
     },

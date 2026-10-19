@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -26,6 +27,8 @@ import {
   Monitor,
   Palette as PaletteIcon,
   Check,
+  Crown,
+  CreditCard,
 } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme, ColorPresets, ThemeColorKey } from '@/theme';
@@ -38,6 +41,8 @@ import {
   fetchAndApplyOTAUpdate,
   getUpdateMetadata,
 } from '@/services/updatesService';
+import { getSubscriptionStatus } from '@/services/subscriptionService';
+import { SubscriptionPaywall } from '@/components/subscription/SubscriptionPaywall';
 
 export default function SettingsScreen() {
   const { colors, spacing, typography, borderRadius, themeMode, themeColor, setThemeMode, setThemeColor } = useTheme();
@@ -48,7 +53,9 @@ export default function SettingsScreen() {
   const [downloadingUpdate, setDownloadingUpdate] = useState(false);
   const [updateMessage, setUpdateMessage] = useState<string | null>(null);
   const [hasNewUpdate, setHasNewUpdate] = useState(false);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
 
+  const subStatus = getSubscriptionStatus(currentBakery);
   const updateMeta = getUpdateMetadata();
 
   const handleCheckUpdate = async () => {
@@ -336,6 +343,81 @@ export default function SettingsScreen() {
             )}
           </Card>
 
+          {/* Subscription & Plan Card */}
+          <Card style={{ marginTop: spacing.lg }}>
+            <View style={styles.cardHeader}>
+              <View style={styles.row}>
+                <Crown size={20} color={colors.primary} />
+                <Text style={[typography.h3, { color: colors.text, marginLeft: 8 }]}>
+                  Subscription & Plan
+                </Text>
+              </View>
+              <Badge
+                label={
+                  subStatus.isActive
+                    ? 'Active'
+                    : subStatus.isPendingApproval
+                    ? 'Pending Approval'
+                    : subStatus.isExpired
+                    ? 'Expired'
+                    : 'Inactive'
+                }
+                variant={
+                  subStatus.isActive
+                    ? 'primary'
+                    : subStatus.isPendingApproval
+                    ? 'warning'
+                    : 'danger'
+                }
+              />
+            </View>
+
+            <View style={[styles.infoRow, { borderBottomColor: colors.borderSubtle, borderBottomWidth: 1 }]}>
+              <Text style={[typography.caption, { color: colors.textMuted }]}>Current Plan</Text>
+              <Text style={[typography.bodyBold, { color: colors.text }]}>
+                {subStatus.planName}
+              </Text>
+            </View>
+
+            <View style={[styles.infoRow, { borderBottomColor: colors.borderSubtle, borderBottomWidth: 1 }]}>
+              <Text style={[typography.caption, { color: colors.textMuted }]}>Remaining Days</Text>
+              <Text
+                style={[
+                  typography.bodyBold,
+                  {
+                    color: subStatus.isActive
+                      ? colors.primary
+                      : subStatus.isPendingApproval
+                      ? '#D97706'
+                      : colors.danger,
+                  },
+                ]}
+              >
+                {subStatus.isActive
+                  ? `${subStatus.daysRemaining} days remaining`
+                  : subStatus.isPendingApproval
+                  ? 'Awaiting Admin Approval'
+                  : 'Expired / Inactive'}
+              </Text>
+            </View>
+
+            <View style={[styles.infoRow, { borderBottomColor: colors.borderSubtle, borderBottomWidth: 1 }]}>
+              <Text style={[typography.caption, { color: colors.textMuted }]}>Valid Until</Text>
+              <Text style={[typography.body, { color: colors.text }]}>
+                {subStatus.formattedExpiry}
+              </Text>
+            </View>
+
+            <Button
+              title="Change / Upgrade Plan"
+              variant="outline"
+              size="md"
+              onPress={() => setShowPaywallModal(true)}
+              icon={<CreditCard size={18} color={colors.primary} />}
+              style={{ marginTop: spacing.md }}
+            />
+          </Card>
+
           {/* Bakery Information */}
           <Card style={{ marginTop: spacing.lg }}>
             <View style={styles.cardHeader}>
@@ -464,6 +546,21 @@ export default function SettingsScreen() {
           />
         </View>
       </ScrollView>
+
+      {/* Plan Upgrade / Subscription Modal */}
+      <Modal
+        visible={showPaywallModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowPaywallModal(false)}
+      >
+        <SubscriptionPaywall
+          isDismissible
+          onDismiss={() => setShowPaywallModal(false)}
+          title="Upgrade or Renew Plan"
+          subtitle="Choose the best plan for your bakery. All features activate immediately."
+        />
+      </Modal>
     </SafeAreaView>
   );
 }

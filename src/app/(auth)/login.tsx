@@ -7,10 +7,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useLocalSearchParams } from 'expo-router';
-import { Mail, Lock, Store, CheckCircle2 } from 'lucide-react-native';
+import { Mail, Lock, CheckCircle2 } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 import { Button } from '@/components/ui/Button';
@@ -74,22 +75,16 @@ export default function LoginScreen() {
         >
         {/* Brand Header */}
         <View style={styles.header}>
-          <View
-            style={[
-              styles.logoBadge,
-              {
-                backgroundColor: colors.primaryLight,
-                borderRadius: borderRadius.full,
-              },
-            ]}
-          >
-            <Store size={36} color={colors.primary} />
-          </View>
-          <Text style={[typography.h1, { color: colors.text, marginTop: spacing.md }]}>
-            Bakery POS
+          <Image
+            source={require('../../../assets/images/app-logo.png')}
+            style={styles.brandLogo}
+            resizeMode="contain"
+          />
+          <Text style={[typography.h1, { color: colors.text, marginTop: spacing.sm }]}>
+            BakeFlow POS
           </Text>
           <Text style={[typography.subtitle, { color: colors.textMuted, marginTop: spacing.xs }]}>
-            Artisan POS & Real-Time Management
+            Smart Bakery POS & Management
           </Text>
         </View>
 
@@ -217,6 +212,12 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 8,
+  },
+  brandLogo: {
+    width: 76,
+    height: 76,
+    borderRadius: 18,
+    marginBottom: 4,
   },
   logoBadge: {
     width: 72,

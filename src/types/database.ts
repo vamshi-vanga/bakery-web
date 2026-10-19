@@ -23,6 +23,9 @@ export type MovementType =
   | 'correction'
   | 'void_restoration';
 
+export type SubscriptionPlan = 'trial' | 'eight_months' | 'one_year';
+export type SubscriptionStatus = 'none' | 'pending_approval' | 'active' | 'expired';
+
 export interface Bakery {
   id: string;
   name: string;
@@ -31,6 +34,10 @@ export interface Bakery {
   address: string | null;
   currency: string;
   timezone: string;
+  subscription_plan?: SubscriptionPlan | null;
+  subscription_status?: SubscriptionStatus | null;
+  subscription_start?: string | null;
+  subscription_end?: string | null;
   created_at: string;
   updated_at: string;
 }

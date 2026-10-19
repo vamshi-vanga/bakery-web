@@ -34,7 +34,7 @@ export default function ResetPasswordScreen() {
   const [resendCooldown, setResendCooldown] = useState(60);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(
-    params.email ? `Check ${params.email} for your 6-digit recovery code.` : null
+    params.email ? `Check ${params.email} for your recovery code.` : null
   );
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -64,7 +64,7 @@ export default function ResetPasswordScreen() {
 
     if (otpCode.trim().length < 6) {
       haptic.error();
-      setErrorMessage('Please enter the 6-digit recovery code.');
+      setErrorMessage('Please enter the complete recovery code.');
       return;
     }
 
@@ -128,7 +128,9 @@ export default function ResetPasswordScreen() {
     setInfoMessage(null);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: 'bakery://reset-password',
+      });
 
       if (error) {
         haptic.error();
@@ -207,6 +209,22 @@ export default function ResetPasswordScreen() {
     );
   };
 
+  const renderDigitBoxes = () => {
+    return (
+      <View style={styles.boxesWrapper}>
+        <View style={styles.groupContainer}>
+          {[0, 1, 2, 3].map(renderDigitBox)}
+        </View>
+        <View style={styles.separator}>
+          <Text style={[styles.separatorText, { color: colors.textMuted }]}>–</Text>
+        </View>
+        <View style={styles.groupContainer}>
+          {[4, 5, 6, 7].map(renderDigitBox)}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
@@ -245,7 +263,7 @@ export default function ResetPasswordScreen() {
             >
               {isSuccess
                 ? 'Your new credentials are saved. You are ready to go!'
-                : 'Enter your 6-digit recovery code and choose a new password.'}
+                : 'Enter your recovery code and choose a new password.'}
             </Text>
           </View>
 
@@ -329,18 +347,22 @@ export default function ResetPasswordScreen() {
                 leftIcon={<Mail size={20} color={colors.textMuted} />}
               />
 
-              {/* 6-digit Code */}
-              <Text style={[typography.captionBold, { color: colors.text, marginBottom: spacing.xs }]}>
-                6-Digit Recovery Code
-              </Text>
+              {/* Recovery Code */}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs }}>
+                <Text style={[typography.captionBold, { color: colors.text }]}>
+                  Recovery Code
+                </Text>
+                <Text style={[typography.caption, { color: colors.textMuted }]}>
+                  {otpCode.length > 0 ? `${otpCode.length}/8 digits` : '6 or 8 digits'}
+                </Text>
+              </View>
+
               <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => inputRef.current?.focus()}
                 style={styles.boxesContainer}
               >
-                <View style={styles.boxesRow}>
-                  {[0, 1, 2, 3, 4, 5].map(renderDigitBox)}
-                </View>
+                {renderDigitBoxes()}
               </TouchableOpacity>
 
               {/* Hidden text input capturing OTP */}
@@ -349,9 +371,10 @@ export default function ResetPasswordScreen() {
                 value={otpCode}
                 onChangeText={handleOtpChange}
                 keyboardType="number-pad"
-                maxLength={6}
+                maxLength={8}
                 style={styles.hiddenInput}
                 caretHidden
+                autoFocus
               />
 
               {/* New Password */}
@@ -464,21 +487,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    marginVertical: 4,
   },
-  boxesRow: {
+  boxesWrapper: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
     justifyContent: 'center',
   },
+  groupContainer: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+  separator: {
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  separatorText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
   digitBox: {
-    width: 44,
-    height: 52,
+    width: 34,
+    height: 48,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   digitText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
   },
   hiddenInput: {

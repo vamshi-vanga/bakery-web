@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -78,18 +79,12 @@ export default function SetupBakeryScreen() {
         >
         {/* Header */}
         <View style={styles.header}>
-          <View
-            style={[
-              styles.logoBadge,
-              {
-                backgroundColor: colors.primaryLight,
-                borderRadius: borderRadius.full,
-              },
-            ]}
-          >
-            <Store size={36} color={colors.primary} />
-          </View>
-          <Text style={[typography.h1, { color: colors.text, marginTop: spacing.md }]}>
+          <Image
+            source={require('../../../assets/images/app-logo.png')}
+            style={{ width: 72, height: 72, borderRadius: 18, marginBottom: 8 }}
+            resizeMode="contain"
+          />
+          <Text style={[typography.h1, { color: colors.text, marginTop: spacing.xs }]}>
             Setup Your Bakery
           </Text>
           <Text
