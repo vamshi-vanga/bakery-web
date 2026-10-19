@@ -38,6 +38,8 @@ yarn-error.*
 *.tsbuildinfo
 
 example
+*.avif
+3-option-pricing.jpg
 
 # generated native folders
 /ios

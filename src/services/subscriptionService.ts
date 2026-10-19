@@ -1,3 +1,5 @@
+import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase';
 import { Bakery, SubscriptionPlan, SubscriptionStatus } from '@/types/database';
 import { useAuthStore } from '@/stores/authStore';
@@ -5,13 +7,22 @@ import { useAuthStore } from '@/stores/authStore';
 export interface PlanConfig {
   id: SubscriptionPlan;
   name: string;
+  titleKey: string;
   durationLabel: string;
+  originalPrice?: number;
+  originalPriceLabel?: string;
   price: number;
   priceLabel: string;
+  discountPercent?: number;
+  savingsLabel?: string;
+  billingPeriod: string;
   equivalentMonthly?: string;
   badge?: string;
   popular?: boolean;
   bestValue?: boolean;
+  accentColor: string;
+  accentBg: string;
+  accentBorder: string;
   requiresApproval: boolean;
   description: string;
   features: string[];
@@ -20,61 +31,165 @@ export interface PlanConfig {
 export const SUBSCRIPTION_PLANS: PlanConfig[] = [
   {
     id: 'trial',
-    name: 'Free 2-Day Trial',
-    durationLabel: '2 Days Free (48 Hours)',
+    name: '2-Day Free Trial',
+    titleKey: '2-DAY TRIAL',
+    durationLabel: '2 Days (48 Hours Access)',
     price: 0,
     priceLabel: '₹0',
-    equivalentMonthly: 'Instant access • No approval needed',
-    badge: 'Instant Activation',
+    billingPeriod: 'for 48 Hours',
+    equivalentMonthly: 'Instant Evaluation Access',
+    badge: 'Free Trial',
+    accentColor: '#F97316', // Vibrant Orange
+    accentBg: '#1A181C',
+    accentBorder: '#EA580C',
     requiresApproval: false,
-    description: 'Instant 48-hour free access to test full POS billing and bakery management.',
+    description: 'Instant 48-hour access with full counter POS billing. Zero credit card or payment required.',
     features: [
-      'Instant access — start billing in seconds',
-      'Full 48 hours without interruption',
-      'POS billing & instant receipt generation',
-      'Inventory, menu items & categories',
-      'Automated WhatsApp receipts to customers',
-      'Full offline mode with SQLite database',
+      'Instant activation — start billing right away',
+      'Continuous 48-hour counter POS billing',
+      'Fast order creation & customer bill printing',
+      'Unlimited products, categories & modifiers',
+      'WhatsApp digital customer receipt delivery',
+      'SQLite offline-first local database storage',
     ],
   },
   {
     id: 'eight_months',
     name: '8-Month Plan',
-    durationLabel: '8 Months',
+    titleKey: '8-MONTH PLAN',
+    durationLabel: '8 Months Duration',
+    originalPrice: 1256,
+    originalPriceLabel: '₹1,256',
     price: 829,
     priceLabel: '₹829',
+    discountPercent: 34,
+    savingsLabel: 'Save ₹427 (34% Discount)',
+    billingPeriod: 'for 8 Months',
     equivalentMonthly: '₹103 / month',
     popular: true,
-    badge: 'Requires Admin Approval',
+    badge: 'Most Popular',
+    accentColor: '#F43F5E', // Rose / Ruby
+    accentBg: '#1D1620',
+    accentBorder: '#E11D48',
     requiresApproval: true,
-    description: 'Requires admin verification in Supabase. Once approved, you get 8 full months of access.',
+    description: 'Full 8 months uninterrupted access. Submit a request to activate for your bakery.',
     features: [
-      'Submitted directly to admin for verification',
-      'Unlimited POS orders, billing & void tracking',
-      'Real-time cloud sync across staff devices',
-      'Daily sales analytics & revenue metrics',
-      'WhatsApp receipt delivery & customer logs',
-      'Automatic Over-The-Air app updates',
+      'Full 8 months continuous uninterrupted access',
+      'Massive price drop: ₹1,256 slashed to ₹829',
+      'Save ₹427 on your bakery operations',
+      'Unlimited counter POS orders & billing register',
+      'Multi-device cashier & staff terminal sync',
+      'Continuous real-time Supabase cloud backup',
+      'Daily sales analytics, profit & tax reports',
+      'Automated WhatsApp customer digital receipts',
+      'Priority support & instant OTA app updates',
     ],
   },
   {
     id: 'one_year',
     name: '1-Year Plan',
+    titleKey: '1-YEAR PLAN',
     durationLabel: '12 Months (Full Year)',
+    originalPrice: 1850,
+    originalPriceLabel: '₹1,850',
     price: 920,
     priceLabel: '₹920',
-    equivalentMonthly: 'Just ₹76 / month',
+    discountPercent: 50,
+    savingsLabel: 'Save ₹930 (50% OFF - Half Price)',
+    billingPeriod: 'for 12 Months',
+    equivalentMonthly: 'Lowest Rate: ₹76 / month',
     bestValue: true,
-    badge: 'Best Value • Admin Approval',
+    badge: 'Best Value (12 Months)',
+    accentColor: '#06B6D4', // Aqua / Cyan
+    accentBg: '#131C24',
+    accentBorder: '#0891B2',
     requiresApproval: true,
-    description: 'Lowest pricing for a full year. Admin accepts your account in Supabase to activate.',
+    description: 'Full 365 days access at the lowest monthly rate (₹76/mo). Submit a request to activate.',
     features: [
-      'Submitted directly to admin for verification',
-      'Lowest rate (₹76/month vs ₹103/month)',
-      'Full 365 days coverage with zero interruption',
-      'Priority cloud support & instant OTA patches',
-      'Continuous feature additions & updates',
+      'Full 12 months (365 days) continuous access',
+      'Massive 50% discount: ₹1,850 slashed to ₹920',
+      'Lowest rate across all plans: Only ₹76 / month',
+      'Unlimited counter POS orders & billing register',
+      'Multi-device cashier & staff terminal sync',
+      'Continuous real-time Supabase cloud backup',
+      'Daily sales analytics, profit & tax reports',
+      'Automated WhatsApp customer digital receipts',
+      'Priority support & instant OTA app updates',
     ],
+  },
+];
+
+export interface PlanFeatureComparison {
+  id: string;
+  title: string;
+  trial: boolean;
+  eight_months: boolean;
+  one_year: boolean;
+}
+
+export const COMPARISON_FEATURES: PlanFeatureComparison[] = [
+  {
+    id: 'billing',
+    title: 'POS Fast Billing & Invoices',
+    trial: true,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'offline',
+    title: 'SQLite Offline Local Database',
+    trial: true,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'products',
+    title: 'Unlimited Products & Categories',
+    trial: true,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'whatsapp',
+    title: 'WhatsApp Customer Digital Receipts',
+    trial: true,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'cloud_backup',
+    title: 'Real-time Cloud Backup & Sync',
+    trial: false,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'multi_device',
+    title: 'Multi-Device Staff & Cashier Terminals',
+    trial: false,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'inventory_logs',
+    title: 'Inventory Movement & Restock Logs',
+    trial: false,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'analytics',
+    title: 'Daily Sales, Revenue & Profit Reports',
+    trial: false,
+    eight_months: true,
+    one_year: true,
+  },
+  {
+    id: 'priority_support',
+    title: 'Priority Support & OTA Updates',
+    trial: false,
+    eight_months: true,
+    one_year: true,
   },
 ];
 
@@ -97,20 +212,26 @@ export function isSubscriptionActive(bakery: Bakery | null): boolean {
 export function getSubscriptionStatus(bakery: Bakery | null): {
   isActive: boolean;
   isExpired: boolean;
+  isExpiringSoon: boolean;
   isPendingApproval: boolean;
   status: SubscriptionStatus;
   planName: string;
+  planId: SubscriptionPlan | null;
   daysRemaining: number;
+  hoursRemaining: number;
   formattedExpiry: string;
 } {
   if (!bakery || !bakery.subscription_plan) {
     return {
       isActive: false,
       isExpired: false,
+      isExpiringSoon: false,
       isPendingApproval: false,
       status: 'none',
       planName: 'None',
+      planId: null,
       daysRemaining: 0,
+      hoursRemaining: 0,
       formattedExpiry: 'Not subscribed',
     };
   }
@@ -118,15 +239,19 @@ export function getSubscriptionStatus(bakery: Bakery | null): {
   const isPendingApproval = bakery.subscription_status === 'pending_approval';
   const planObj = SUBSCRIPTION_PLANS.find((p) => p.id === bakery.subscription_plan);
   const planName = planObj?.name ?? bakery.subscription_plan;
+  const planId = bakery.subscription_plan;
 
   if (isPendingApproval) {
     return {
       isActive: false,
       isExpired: false,
+      isExpiringSoon: false,
       isPendingApproval: true,
       status: 'pending_approval',
       planName,
+      planId,
       daysRemaining: 0,
+      hoursRemaining: 0,
       formattedExpiry: 'Awaiting admin approval in Supabase',
     };
   }
@@ -135,10 +260,13 @@ export function getSubscriptionStatus(bakery: Bakery | null): {
     return {
       isActive: false,
       isExpired: false,
+      isExpiringSoon: false,
       isPendingApproval: false,
       status: bakery.subscription_status ?? 'none',
       planName,
+      planId,
       daysRemaining: 0,
+      hoursRemaining: 0,
       formattedExpiry: 'Inactive',
     };
   }
@@ -146,8 +274,13 @@ export function getSubscriptionStatus(bakery: Bakery | null): {
   const expiryTime = new Date(bakery.subscription_end).getTime();
   const now = Date.now();
   const diffMs = expiryTime - now;
+  const hoursRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60)));
   const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
   const isExpired = diffMs <= 0;
+  const isActive = !isExpired && bakery.subscription_status === 'active';
+
+  // 1 week (7 days) warning for active paid plans (8-month and 1-year)
+  const isExpiringSoon = isActive && planId !== 'trial' && daysRemaining <= 7 && daysRemaining >= 0;
 
   const formattedExpiry = new Date(bakery.subscription_end).toLocaleDateString('en-IN', {
     day: 'numeric',
@@ -156,14 +289,78 @@ export function getSubscriptionStatus(bakery: Bakery | null): {
   });
 
   return {
-    isActive: !isExpired && bakery.subscription_status === 'active',
+    isActive,
     isExpired,
+    isExpiringSoon,
     isPendingApproval: false,
     status: isExpired ? 'expired' : (bakery.subscription_status ?? 'none'),
     planName,
+    planId,
     daysRemaining,
+    hoursRemaining,
     formattedExpiry,
   };
+}
+
+/**
+ * Daily warning checker for paid plans (8-month and 1-year).
+ * Alerts once per day during the final 7 days before expiry.
+ */
+export async function checkAndTriggerDailyExpiryWarning(
+  bakery: Bakery | null,
+  onRenewPress?: () => void
+): Promise<boolean> {
+  if (!bakery) return false;
+  const status = getSubscriptionStatus(bakery);
+
+  // Only trigger for active paid plans (8-month and 1-year) expiring within 7 days
+  if (!status.isActive || !status.isExpiringSoon || bakery.subscription_plan === 'trial') {
+    return false;
+  }
+
+  try {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const storageKey = `@bakeflow_last_expiry_warning_${bakery.id}`;
+    const lastWarningDate = await AsyncStorage.getItem(storageKey);
+
+    if (lastWarningDate === todayStr) {
+      // Already alerted today
+      return false;
+    }
+
+    // Record today's date so it only shows once per day
+    await AsyncStorage.setItem(storageKey, todayStr);
+
+    const daysText =
+      status.daysRemaining === 0
+        ? 'less than 24 hours'
+        : status.daysRemaining === 1
+        ? '1 day'
+        : `${status.daysRemaining} days`;
+
+    Alert.alert(
+      'Subscription Expiring Soon',
+      `Your BakeFlow ${status.planName} will expire in ${daysText} (on ${status.formattedExpiry}).\n\nYour bakery data remains 100% safe & protected. Please renew your subscription to prevent any interruption to your POS billing.`,
+      [
+        {
+          text: 'Remind Me Tomorrow',
+          style: 'cancel',
+        },
+        {
+          text: 'Renew Plan Now',
+          style: 'default',
+          onPress: () => {
+            if (onRenewPress) onRenewPress();
+          },
+        },
+      ]
+    );
+
+    return true;
+  } catch (err) {
+    console.warn('Failed to check daily expiry warning:', err);
+    return false;
+  }
 }
 
 /**
@@ -189,6 +386,30 @@ export async function activateBakeryPlan(
     const startIso = isPaid ? null : now.toISOString();
     const endIso = endDate ? endDate.toISOString() : null;
 
+    const authStore = useAuthStore.getState();
+    const currentBakery = authStore.currentBakery;
+
+    // Hard Guard: Do not allow changing plan while active paid plan (8-month or 1-year) is running!
+    if (
+      currentBakery &&
+      currentBakery.subscription_status === 'active' &&
+      (currentBakery.subscription_plan === 'eight_months' || currentBakery.subscription_plan === 'one_year') &&
+      currentBakery.subscription_end &&
+      new Date(currentBakery.subscription_end).getTime() > Date.now()
+    ) {
+      return {
+        success: false,
+        status: 'active',
+        error: `Active plan protected: You already have an active ${
+          currentBakery.subscription_plan === 'one_year' ? '1-Year' : '8-Month'
+        } plan until ${new Date(currentBakery.subscription_end).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })}. You cannot switch plans until this period completes.`,
+      };
+    }
+
     // 1. Attempt atomic RPC call
     const { error: rpcError } = await supabase.rpc('activate_bakery_plan', {
       p_bakery_id: bakeryId,
@@ -196,7 +417,12 @@ export async function activateBakeryPlan(
     });
 
     if (rpcError) {
-      // 2. Fallback to direct table UPDATE
+      // If RPC blocked because plan is active, return immediately without fallback
+      if (rpcError.message.includes('already has an active') || rpcError.message.includes('Active subscription protected')) {
+        return { success: false, status: 'active', error: rpcError.message };
+      }
+
+      // 2. Fallback to direct table UPDATE (only for non-protected scenarios)
       const { error: updateError } = await supabase
         .from('bakeries')
         .update({
@@ -211,10 +437,29 @@ export async function activateBakeryPlan(
       if (updateError) {
         return { success: false, status: 'none', error: updateError.message };
       }
+
+      // Record in subscription_requests table if paid
+      if (isPaid) {
+        const currentUser = authStore.user;
+        const amount = plan === 'eight_months' ? 829.0 : 920.0;
+        try {
+          await (supabase.from('subscription_requests') as any).insert({
+            bakery_id: bakeryId,
+            bakery_name: currentBakery?.name || 'Bakery',
+            owner_id: currentUser?.id,
+            owner_email: currentUser?.email,
+            owner_phone: currentBakery?.phone,
+            plan,
+            amount,
+            status: 'pending',
+          });
+        } catch {
+          // Non-blocking fallback
+        }
+      }
     }
 
     // 3. Immediately refresh current bakery in local Zustand store
-    const authStore = useAuthStore.getState();
     if (authStore.currentBakery) {
       const updatedBakery: Bakery = {
         ...authStore.currentBakery,

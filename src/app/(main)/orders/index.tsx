@@ -37,6 +37,7 @@ import { voidOrder } from '@/services/inventory';
 import { ReceiptModal } from '@/components/receipts/ReceiptModal';
 import { ReceiptOrderData } from '@/services/receipts';
 import { WhatsAppStatus } from '@/types/database';
+import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
 import { haptic } from '@/utils/haptics';
 
 export default function OrdersHistoryScreen() {
@@ -405,12 +406,13 @@ export default function OrdersHistoryScreen() {
       <View style={styles.responsiveContainer}>
         {/* Header */}
         <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.sm }]}>
-          <View>
+          <View style={{ flex: 1, marginRight: 12 }}>
             <Text style={[typography.h2, { color: colors.text }]}>Order History</Text>
             <Text style={[typography.caption, { color: colors.textMuted }]}>
               Billing IDs, item details & order revenue logs
             </Text>
           </View>
+          <HeaderProfileButton />
         </View>
 
         {/* Search Bar */}

@@ -59,6 +59,20 @@ export async function initOfflineDatabase(): Promise<void> {
 
     CREATE INDEX IF NOT EXISTS idx_offline_orders_status ON offline_order_queue(sync_status);
     CREATE INDEX IF NOT EXISTS idx_offline_orders_bakery ON offline_order_queue(bakery_id);
+
+    CREATE TABLE IF NOT EXISTS local_security_ledger (
+      bakery_id TEXT PRIMARY KEY NOT NULL,
+      subscription_plan TEXT NOT NULL,
+      subscription_status TEXT NOT NULL,
+      subscription_start TEXT,
+      subscription_end TEXT,
+      max_observed_timestamp INTEGER NOT NULL,
+      accumulated_active_seconds INTEGER NOT NULL DEFAULT 0,
+      last_heartbeat_timestamp INTEGER NOT NULL,
+      clock_tampered INTEGER NOT NULL DEFAULT 0,
+      ledger_signature TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
 }
 
@@ -295,3 +309,16 @@ export async function getOfflineOrderStats(bakeryId: string): Promise<{
 
   return { pendingCount, syncedCount, failedCount };
 }
+
+/**
+ * Completely wipe all local SQLite data upon account deletion or factory reset.
+ */
+export async function purgeAllLocalOfflineData(): Promise<void> {
+  const db = getDatabase();
+  await db.execAsync(`
+    DELETE FROM cached_products;
+    DELETE FROM offline_order_queue;
+    DELETE FROM local_security_ledger;
+  `);
+}
+

@@ -26,6 +26,7 @@ import { PaymentBreakdownCard } from '@/components/dashboard/PaymentBreakdownCar
 import { TopProductsList } from '@/components/dashboard/TopProductsList';
 import { DateRangeSelector } from '@/components/dashboard/DateRangeSelector';
 import { CustomDateModal } from '@/components/dashboard/CustomDateModal';
+import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
 import { haptic } from '@/utils/haptics';
 
 export default function DashboardScreen() {
@@ -61,18 +62,21 @@ export default function DashboardScreen() {
       <View style={styles.responsiveContainer}>
         {/* Top Header */}
         <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.sm }]}>
-          <View>
+          <View style={{ flex: 1, marginRight: 12 }}>
             <Text style={[typography.h2, { color: colors.text }]}>Revenue Analytics</Text>
             <Text style={[typography.caption, { color: colors.textMuted }]}>
               {currentBakery?.name ?? 'Bakery'} • {currentBakery?.timezone ?? 'Asia/Kolkata'}
             </Text>
           </View>
 
-        <ConnectionStatusBadge
-          isConnected={isConnected}
-          isReconnecting={isReconnecting}
-        />
-      </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <ConnectionStatusBadge
+              isConnected={isConnected}
+              isReconnecting={isReconnecting}
+            />
+            <HeaderProfileButton />
+          </View>
+        </View>
 
       {/* Stale Data Alert Banner (if disconnected > 10s) */}
       {isStale && (

@@ -26,6 +26,7 @@ import {
 } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { useCartStore } from '@/stores/cartStore';
+import { useUIStore } from '@/stores/uiStore';
 import { useTheme } from '@/theme';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -183,14 +184,28 @@ export default function CheckoutScreen() {
               {
                 backgroundColor: colors.dangerLight,
                 borderColor: colors.danger,
-                borderRadius: borderRadius.sm,
+                borderRadius: borderRadius.md,
                 marginBottom: spacing.md,
               },
             ]}
           >
-            <Text style={[typography.captionBold, { color: colors.dangerText }]}>
+            <Text style={[typography.captionBold, { color: colors.dangerText, fontSize: 13 }]}>
               {errorMessage}
             </Text>
+            {(errorMessage.includes('TRIAL_EXPIRED') ||
+              errorMessage.includes('SUBSCRIPTION') ||
+              errorMessage.includes('expired')) && (
+              <TouchableOpacity
+                onPress={() => {
+                  haptic.medium();
+                  useUIStore.getState().openSubscriptionModal();
+                }}
+                style={styles.errorActionBtn}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.errorActionBtnText}>Upgrade Bakery Plan Now →</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
 
@@ -595,6 +610,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   errorBanner: { padding: 12, borderWidth: 1 },
+  errorActionBtn: {
+    marginTop: 8,
+    backgroundColor: '#F97316',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  errorActionBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 12,
+  },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',

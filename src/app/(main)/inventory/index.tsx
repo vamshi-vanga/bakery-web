@@ -27,6 +27,7 @@ import { haptic } from '@/utils/haptics';
 import { InventorySummaryCards } from '@/components/inventory/InventorySummaryCards';
 import { StockAdjustModal } from '@/components/inventory/StockAdjustModal';
 import { MovementHistoryList } from '@/components/inventory/MovementHistoryList';
+import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
 
 type MainView = 'stock' | 'movements';
 type StockFilter = 'all' | 'low' | 'out';
@@ -186,12 +187,13 @@ export default function InventoryScreen() {
       <View style={styles.responsiveContainer}>
         {/* Header */}
         <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.sm }]}>
-          <View>
+          <View style={{ flex: 1, marginRight: 12 }}>
             <Text style={[typography.h2, { color: colors.text }]}>Inventory & Stock</Text>
             <Text style={[typography.caption, { color: colors.textMuted }]}>
               {currentBakery?.name ?? 'Bakery'} Management
             </Text>
           </View>
+          <HeaderProfileButton />
         </View>
 
       {/* Summary Metrics */}

@@ -8,6 +8,7 @@ import {
   TextInput,
   RefreshControl,
   useWindowDimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -17,13 +18,13 @@ import {
   Plus,
   Minus,
   ArrowRight,
-  Store,
   AlertTriangle,
   X,
-  Tags,
   Trash2,
+  Sparkles,
 } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
+import { useUIStore } from '@/stores/uiStore';
 import { useCartStore } from '@/stores/cartStore';
 import { useTheme } from '@/theme';
 import { MenuItem } from '@/types/database';
@@ -31,6 +32,8 @@ import { fetchProducts } from '@/services/products';
 import { fetchCategories } from '@/services/categories';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { CategoryManageModal } from '@/components/categories/CategoryManageModal';
+import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
+import { getSubscriptionStatus } from '@/services/subscriptionService';
 import { haptic } from '@/utils/haptics';
 
 interface ProductTileProps {
@@ -233,6 +236,11 @@ export default function POSOrderScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const openSubscriptionModal = useUIStore((s) => s.openSubscriptionModal);
+  const openProfileModal = useUIStore((s) => s.openProfileModal);
+
+  const subStatus = getSubscriptionStatus(currentBakery);
+  const isTrial = currentBakery?.subscription_plan === 'trial' && subStatus.isActive;
 
   const bakeryId = currentBakery?.id;
 
@@ -343,52 +351,59 @@ export default function POSOrderScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.responsiveContainer}>
-        {/* Header (Minimalist Admin Style) */}
+        {/* Header (Executive POS Branding Bar) */}
         <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.sm }]}>
           <View style={styles.headerLeft}>
             <View
               style={[
-                styles.storeBadge,
-                { backgroundColor: colors.primaryLight, borderRadius: borderRadius.md },
+                styles.brandLogoWrap,
+                { backgroundColor: colors.surface, borderColor: colors.borderSubtle },
               ]}
             >
-              <Store size={22} color={colors.primary} />
+              <Image
+                source={require('../../../../assets/images/app-logo.png')}
+                style={styles.headerBrandLogo}
+                resizeMode="contain"
+              />
             </View>
             <View style={styles.headerTextWrap}>
-              <Text style={[typography.h3, { color: colors.text, fontSize: 17 }]} numberOfLines={1}>
-                {currentBakery?.name ?? 'Bakery POS'}
+              <Text
+                style={[typography.h3, { color: colors.text, fontSize: 16, fontWeight: '800' }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {currentBakery?.name ?? 'BakeFlow POS'}
               </Text>
-              <Text style={[typography.caption, { color: colors.textMuted }]} numberOfLines={1}>
-                Counter Register • Quick Billing
-              </Text>
+              <View style={styles.headerStatusRow}>
+                <View style={styles.headerLiveDot} />
+                <Text style={[typography.caption, { color: colors.textMuted, fontSize: 11 }]}>
+                  Counter Register • Live
+                </Text>
+              </View>
             </View>
           </View>
 
           <View style={styles.headerActions}>
-            {isTablet && (
+            {/* Trial Upgrade Button (Visible when bakery is using 2-day trial) */}
+            {isTrial && (
               <TouchableOpacity
                 onPress={() => {
                   haptic.medium();
-                  setShowCategoryModal(true);
+                  openSubscriptionModal();
                 }}
                 style={[
-                  styles.catManageBtn,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.borderSubtle,
-                    borderRadius: borderRadius.md,
-                  },
+                  styles.trialUpgradeBtn,
+                  { borderRadius: borderRadius.full },
                 ]}
-                activeOpacity={0.7}
+                activeOpacity={0.8}
               >
-                <Tags size={15} color={colors.primary} />
-                <Text style={[typography.captionBold, { color: colors.text, fontSize: 12, marginLeft: 5 }]}>
-                  Categories
-                </Text>
+                <Sparkles size={12} color="#FFFFFF" />
+                <Text style={styles.trialUpgradeBtnText}>Upgrade Plan</Text>
               </TouchableOpacity>
             )}
 
-            {totalItemsCount > 0 ? (
+            {/* Clear Cart Button */}
+            {totalItemsCount > 0 && (
               <TouchableOpacity
                 onPress={handleClearCart}
                 style={[
@@ -401,33 +416,15 @@ export default function POSOrderScreen() {
                 ]}
                 activeOpacity={0.7}
               >
-                <Trash2 size={15} color={colors.danger} style={{ marginRight: 5 }} />
-                <Text style={[typography.captionBold, { color: colors.danger, fontSize: 13 }]}>
+                <Trash2 size={14} color={colors.danger} style={{ marginRight: 4 }} />
+                <Text style={[typography.captionBold, { color: colors.danger, fontSize: 12 }]}>
                   Clear
                 </Text>
               </TouchableOpacity>
-            ) : !isTablet ? (
-              <TouchableOpacity
-                onPress={() => {
-                  haptic.medium();
-                  setShowCategoryModal(true);
-                }}
-                style={[
-                  styles.catManageBtn,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.borderSubtle,
-                    borderRadius: borderRadius.md,
-                  },
-                ]}
-                activeOpacity={0.7}
-              >
-                <Tags size={15} color={colors.primary} />
-                <Text style={[typography.captionBold, { color: colors.text, fontSize: 12, marginLeft: 5 }]}>
-                  Categories
-                </Text>
-              </TouchableOpacity>
-            ) : null}
+            )}
+
+            {/* Profile Icon on Top Right Corner */}
+            <HeaderProfileButton onPress={openProfileModal} />
           </View>
         </View>
 
@@ -662,19 +659,48 @@ const styles = StyleSheet.create({
     gap: 8,
     flexShrink: 0,
   },
-  storeBadge: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  catManageBtn: {
+  trialUpgradeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: '#F97316',
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+    gap: 4,
+    elevation: 2,
+    shadowColor: '#F97316',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
+  trialUpgradeBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 11.5,
+  },
+  brandLogoWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     borderWidth: 1,
-    flexShrink: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  headerBrandLogo: {
+    width: 26,
+    height: 26,
+  },
+  headerStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 1,
+  },
+  headerLiveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
   },
   clearBtn: {
     flexDirection: 'row',

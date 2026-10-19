@@ -32,6 +32,7 @@ import { MenuItem } from '@/types/database';
 import { fetchProducts } from '@/services/products';
 import { fetchCategories } from '@/services/categories';
 import { CategoryManageModal } from '@/components/categories/CategoryManageModal';
+import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
 import { haptic } from '@/utils/haptics';
 
 export default function ProductsScreen() {
@@ -218,7 +219,7 @@ export default function ProductsScreen() {
       <View style={styles.responsiveContainer}>
         {/* Header */}
         <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.sm }]}>
-          <View style={{ flex: 1, marginRight: isTablet ? 12 : 0 }}>
+          <View style={{ flex: 1, marginRight: 12 }}>
             <Text style={[typography.h2, { color: colors.text }]}>Products & Menu</Text>
             <Text style={[typography.caption, { color: colors.textMuted }]}>
               {products.length} item{products.length === 1 ? '' : 's'} across {categories.length} categories
@@ -226,7 +227,7 @@ export default function ProductsScreen() {
           </View>
 
           {/* On Tablet: Action buttons in header */}
-          {isTablet && (
+          {isTablet ? (
             <View style={styles.headerActions}>
               <TouchableOpacity
                 onPress={() => {
@@ -268,7 +269,11 @@ export default function ProductsScreen() {
                   Add Product
                 </Text>
               </TouchableOpacity>
+
+              <HeaderProfileButton />
             </View>
+          ) : (
+            <HeaderProfileButton />
           )}
         </View>
 

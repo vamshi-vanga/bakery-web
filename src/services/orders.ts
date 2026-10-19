@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { PaymentMethod } from '@/types/database';
 import { isOnline } from './syncService';
 import { queueOfflineOrder } from './offlineStorage';
+import { assertSubscriptionActive } from './securityService';
 
 export interface CreateOrderParams {
   bakeryId: string;
@@ -69,6 +70,9 @@ function generateUUID(): string {
 }
 
 export async function submitOrder(params: CreateOrderParams): Promise<CreateOrderResponse> {
+  // Enterprise Anti-Bypass Guard: Verify subscription validity and check for clock rollback
+  await assertSubscriptionActive(params.bakeryId);
+
   const idempotencyKey = generateUUID();
   const online = await isOnline();
 
