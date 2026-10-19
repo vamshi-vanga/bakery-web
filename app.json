@@ -47,7 +47,8 @@
         }
       ],
       "expo-sqlite",
-      "expo-updates"
+      "expo-updates",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

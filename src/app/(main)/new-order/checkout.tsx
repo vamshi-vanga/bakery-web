@@ -115,6 +115,20 @@ export default function CheckoutScreen() {
       if (result.success) {
         haptic.success();
         setShowStockModal(false);
+
+        // Normalize items array to guarantee names and prices are never empty
+        const rawItems =
+          result.order?.items && result.order.items.length > 0
+            ? result.order.items
+            : orderItems;
+
+        const normalizedItems = rawItems.map((i: any) => ({
+          item_name: i.item_name || i.name || i.product_name || 'Bakery Item',
+          quantity: Number(i.quantity || 1),
+          unit_price: Number(i.unit_price || 0),
+          line_total: Number(i.line_total || Number(i.unit_price || 0) * Number(i.quantity || 1)),
+        }));
+
         // Navigate to success screen with order parameters
         router.replace({
           pathname: '/(main)/new-order/success',
@@ -123,11 +137,12 @@ export default function CheckoutScreen() {
             orderId: result.order.order_id,
             total: result.order.total.toString(),
             paymentMethod: result.order.payment_method,
-            itemCount: result.order.items.length.toString(),
+            itemCount: normalizedItems.length.toString(),
             hasWarnings: result.order.stock_warnings ? 'true' : 'false',
             isOffline: result.order.is_offline ? 'true' : 'false',
             customerName: customerName.trim(),
             customerPhone: customerPhone.trim(),
+            orderItems: JSON.stringify(normalizedItems),
           },
         });
       }

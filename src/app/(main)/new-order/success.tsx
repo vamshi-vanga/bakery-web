@@ -27,11 +27,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ReceiptModal } from '@/components/receipts/ReceiptModal';
-import {
-  ReceiptOrderData,
-  sendWhatsAppReceiptManual,
-  formatReceiptText,
-} from '@/services/receipts';
+import { supabase } from '@/lib/supabase';
+import { ReceiptOrderData } from '@/services/receipts';
 
 export default function OrderSuccessScreen() {
   const { colors, spacing, typography, borderRadius } = useTheme();
@@ -46,6 +43,7 @@ export default function OrderSuccessScreen() {
     isOffline?: string;
     customerName?: string;
     customerPhone?: string;
+    orderItems?: string;
   }>();
 
   const { currentBakery } = useAuthStore();
@@ -54,6 +52,52 @@ export default function OrderSuccessScreen() {
 
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [whatsappSent, setWhatsappSent] = useState(false);
+
+  // Parse items passed from checkout
+  const [orderItemsList, setOrderItemsList] = useState<{
+    item_name: string;
+    quantity: number;
+    unit_price: number;
+    line_total: number;
+  }[]>(() => {
+    try {
+      if (params.orderItems) {
+        return JSON.parse(params.orderItems);
+      }
+    } catch (e) {
+      console.warn('Failed to parse orderItems:', e);
+    }
+    return [];
+  });
+
+  // Fallback: If items weren't in route params, fetch them from Supabase
+  useEffect(() => {
+    if (orderItemsList.length > 0 || !params.orderId) return;
+
+    const fetchOrderItems = async () => {
+      try {
+        const { data } = await supabase
+          .from('order_items')
+          .select('item_name_snapshot, quantity, unit_price_snapshot, line_total')
+          .eq('order_id', params.orderId);
+
+        if (data && data.length > 0) {
+          setOrderItemsList(
+            data.map((item: any) => ({
+              item_name: item.item_name_snapshot,
+              quantity: item.quantity,
+              unit_price: Number(item.unit_price_snapshot),
+              line_total: Number(item.line_total),
+            }))
+          );
+        }
+      } catch (err) {
+        console.warn('Failed to load items in OrderSuccessScreen:', err);
+      }
+    };
+
+    fetchOrderItems();
+  }, [params.orderId, orderItemsList.length]);
 
   useEffect(() => {
     // Clear active cart once order is confirmed
@@ -80,35 +124,12 @@ export default function OrderSuccessScreen() {
     customer_name: params.customerName || null,
     customer_phone: params.customerPhone || null,
     whatsapp_status: whatsappSent ? 'manual' : params.customerPhone ? 'pending' : 'not_requested',
-    items: [], // Loaded if viewed in modal or formatted below
+    items: orderItemsList,
   };
 
   const handleQuickWhatsAppSend = async () => {
-    if (!params.customerPhone || !params.orderId || !currentBakery?.id) return;
-
-    const summaryText = formatReceiptText(
-      {
-        ...receiptOrderData,
-        items: [
-          {
-            item_name: `${params.itemCount ?? 1} Items`,
-            quantity: 1,
-            unit_price: parseFloat(params.total ?? '0'),
-            line_total: parseFloat(params.total ?? '0'),
-          },
-        ],
-      },
-      currentBakery
-    );
-
-    await sendWhatsAppReceiptManual(
-      params.customerPhone,
-      summaryText,
-      params.orderId,
-      currentBakery.id
-    );
-
-    setWhatsappSent(true);
+    // Open full receipt modal to send the high-res bill image
+    setShowReceiptModal(true);
   };
 
   const handleShareReceipt = async () => {
@@ -240,7 +261,7 @@ export default function OrderSuccessScreen() {
         {params.customerPhone ? (
           <View style={{ width: '100%', marginTop: spacing.md }}>
             <Button
-              title={whatsappSent ? 'WhatsApp Sent ✓' : 'Send WhatsApp Receipt'}
+              title={whatsappSent ? 'WhatsApp Bill Sent' : 'Send via WhatsApp'}
               icon={
                 whatsappSent ? (
                   <Smartphone size={18} color="#FFFFFF" />

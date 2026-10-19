@@ -59,17 +59,21 @@ export function formatReceiptText(order: ReceiptOrderData, bakery: Bakery | null
   text += `--------------------------------\n`;
   text += `*ITEMS*\n`;
 
-  order.items.forEach((item) => {
-    text += `• ${item.item_name}\n`;
-    text += `   ${item.quantity} x ${currency} ${item.unit_price.toFixed(2)} = *${currency} ${item.line_total.toFixed(2)}*\n`;
+  (order.items || []).forEach((item: any) => {
+    const itemName = item.item_name || item.name || item.product_name || 'Item';
+    const quantity = Number(item.quantity || 1);
+    const unitPrice = Number(item.unit_price ?? item.unit_price_snapshot ?? 0);
+    const lineTotal = Number(item.line_total ?? quantity * unitPrice);
+    text += `• ${itemName}\n`;
+    text += `   ${quantity} x ${currency} ${unitPrice.toFixed(2)} = *${currency} ${lineTotal.toFixed(2)}*\n`;
   });
 
   text += `--------------------------------\n`;
-  text += `*TOTAL AMOUNT: ${currency} ${order.total.toFixed(2)}*\n`;
-  text += `*Payment:* ${order.payment_method.toUpperCase()} (PAID)\n`;
+  text += `*TOTAL AMOUNT: ${currency} ${Number(order.total || 0).toFixed(2)}*\n`;
+  text += `*Payment:* ${(order.payment_method || 'CASH').toUpperCase()} (PAID)\n`;
   text += `--------------------------------\n`;
-  text += `Thank you for visiting *${bakeryName}*! 🥐🥖\n`;
-  text += `_Freshly baked with love._`;
+  text += `Thank you for visiting *${bakeryName}*!\n`;
+  text += `Freshly baked with love.`;
 
   return text;
 }
@@ -154,5 +158,33 @@ export async function updateOrderWhatsAppStatus(
   } catch (err: any) {
     console.warn('Error updating WhatsApp status:', err?.message ?? err);
   }
+}
+
+/**
+ * Shares a high-resolution receipt image directly via the native share sheet / WhatsApp.
+ */
+export async function shareReceiptImage(
+  imageUri: string,
+  orderId?: string,
+  bakeryId?: string,
+  dialogTitle = 'Share Receipt Image'
+): Promise<boolean> {
+  const Sharing = await import('expo-sharing');
+  const isAvailable = await Sharing.isAvailableAsync();
+  if (!isAvailable) {
+    throw new Error('Sharing is not available on this platform/device');
+  }
+
+  await Sharing.shareAsync(imageUri, {
+    mimeType: 'image/png',
+    dialogTitle,
+    UTI: 'public.png',
+  });
+
+  if (orderId && bakeryId) {
+    await updateOrderWhatsAppStatus(orderId, bakeryId, 'manual');
+  }
+
+  return true;
 }
 
