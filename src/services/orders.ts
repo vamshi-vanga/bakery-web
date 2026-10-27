@@ -174,16 +174,29 @@ export async function submitOrder(params: CreateOrderParams): Promise<CreateOrde
   };
 }
 
-export async function fetchRecentOrders(bakeryId: string, limit = 20) {
-  const { data, error } = await supabase
+export async function fetchRecentOrders(
+  bakeryId: string,
+  limit = 100,
+  startDate?: string,
+  endDate?: string
+) {
+  let query = supabase
     .from('orders')
     .select(`
       *,
       order_items (*)
     `)
     .eq('bakery_id', bakeryId)
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    .order('created_at', { ascending: false });
+
+  if (startDate) {
+    query = query.gte('created_at', startDate);
+  }
+  if (endDate) {
+    query = query.lte('created_at', endDate);
+  }
+
+  const { data, error } = await query.limit(limit);
 
   if (error) {
     console.error('Error fetching recent orders:', error);

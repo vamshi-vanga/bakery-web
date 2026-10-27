@@ -419,6 +419,13 @@ export async function activateBakeryPlan(
     });
 
     if (rpcError) {
+      if (rpcError.message.includes('subscription_requests')) {
+        return {
+          success: false,
+          status: 'none',
+          error: 'Subscription requests table is pending setup in Supabase. Please run migration 023 in your Supabase SQL editor to enable 1-click plan requests.',
+        };
+      }
       return { success: false, status: 'none', error: rpcError.message };
     }
 

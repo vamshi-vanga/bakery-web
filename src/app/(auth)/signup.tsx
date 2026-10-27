@@ -16,6 +16,7 @@ import { useTheme } from '@/theme';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { haptic } from '@/utils/haptics';
 
 export default function SignupScreen() {
   const { colors, spacing, typography, borderRadius } = useTheme();
@@ -60,7 +61,21 @@ export default function SignupScreen() {
       });
 
       if (error) {
-        setErrorMessage(error.message);
+        if (
+          error.message?.toLowerCase().includes('already registered') ||
+          error.message?.toLowerCase().includes('already exists') ||
+          error.message?.toLowerCase().includes('unique')
+        ) {
+          setErrorMessage('An account with this email already exists. Please Sign In below or use Forgot Password.');
+        } else {
+          setErrorMessage(error.message);
+        }
+        return;
+      }
+
+      // Check if user already exists (Supabase returns an obfuscated user with empty identities when email is taken)
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        setErrorMessage('An account with this email already exists. Please Sign In below or use Forgot Password.');
         return;
       }
 
@@ -202,9 +217,24 @@ export default function SignupScreen() {
                   },
                 ]}
               >
-                <Text style={[typography.caption, { color: colors.dangerText }]}>
+                <Text style={[typography.captionBold, { color: colors.dangerText }]}>
                   {errorMessage}
                 </Text>
+                {errorMessage.includes('already exists') && (
+                  <Link
+                    href={{
+                      pathname: '/(auth)/login',
+                      params: { email: email.trim() },
+                    }}
+                    asChild
+                  >
+                    <TouchableOpacity style={{ marginTop: 6 }} onPress={() => haptic.selection()}>
+                      <Text style={[typography.captionBold, { color: colors.primary, textDecorationLine: 'underline' }]}>
+                        Go to Sign In →
+                      </Text>
+                    </TouchableOpacity>
+                  </Link>
+                )}
               </View>
             )}
 

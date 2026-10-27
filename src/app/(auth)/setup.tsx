@@ -15,8 +15,6 @@ import {
   Store,
   Phone,
   MapPin,
-  DollarSign,
-  Globe,
   LogOut,
   Check,
   Sparkles,
@@ -49,8 +47,8 @@ export default function SetupBakeryScreen() {
   const [bakeryName, setBakeryName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [currency, setCurrency] = useState('INR');
-  const [timezone, setTimezone] = useState('Asia/Kolkata');
+  const [currency] = useState('INR');
+  const [timezone] = useState('Asia/Kolkata');
   const [scale, setScale] = useState<BakeryScale>('medium');
   const [preloadMenu, setPreloadMenu] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
@@ -238,7 +236,7 @@ export default function SetupBakeryScreen() {
                         },
                       ]}
                     >
-                      <View style={{ flexDirection: 'row', alignItems: 'flex-start', flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'flex-start', flex: 1, minWidth: 0 }}>
                         <View
                           style={[
                             styles.scaleIconBox,
@@ -250,9 +248,9 @@ export default function SetupBakeryScreen() {
                         >
                           {getScaleIcon(opt.scale)}
                         </View>
-                        <View style={{ flex: 1, marginLeft: 12 }}>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Text style={[typography.bodyBold, { color: isSelected ? colors.primary : colors.text }]}>
+                        <View style={{ flex: 1, marginLeft: 10, minWidth: 0 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 2 }}>
+                            <Text style={[typography.bodyBold, { color: isSelected ? colors.primary : colors.text, flexShrink: 1 }]}>
                               {opt.title}
                             </Text>
                             <Badge
@@ -268,7 +266,7 @@ export default function SetupBakeryScreen() {
                           </Text>
                         </View>
                       </View>
-                      <View style={{ marginLeft: 8, alignSelf: 'center' }}>
+                      <View style={{ marginLeft: 8, alignSelf: 'center', flexShrink: 0 }}>
                         <View
                           style={[
                             styles.radioCircle,
@@ -375,28 +373,6 @@ export default function SetupBakeryScreen() {
               leftIcon={<MapPin size={20} color={colors.textMuted} />}
             />
 
-            <View style={styles.row}>
-              <View style={{ flex: 1, marginRight: spacing.sm }}>
-                <Input
-                  label="Currency"
-                  placeholder="INR"
-                  value={currency}
-                  onChangeText={setCurrency}
-                  autoCapitalize="characters"
-                  leftIcon={<DollarSign size={20} color={colors.textMuted} />}
-                />
-              </View>
-              <View style={{ flex: 1.5 }}>
-                <Input
-                  label="Timezone"
-                  placeholder="Asia/Kolkata"
-                  value={timezone}
-                  onChangeText={setTimezone}
-                  leftIcon={<Globe size={20} color={colors.textMuted} />}
-                />
-              </View>
-            </View>
-
             <Button
               title={loading ? 'Configuring Store...' : 'Launch My Bakery'}
               onPress={handleSetup}
@@ -450,18 +426,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scaleIconBox: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   radioCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   preloadBox: {
     padding: 14,

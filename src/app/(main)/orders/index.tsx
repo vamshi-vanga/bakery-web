@@ -9,10 +9,11 @@ import {
   ActivityIndicator,
   Alert,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
-import { format } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import {
   Receipt,
   CheckCircle2,
@@ -27,6 +28,7 @@ import {
   Banknote,
   QrCode,
   Layers,
+  Calendar as CalendarIcon,
 } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/theme';
@@ -39,6 +41,7 @@ import { ReceiptOrderData } from '@/services/receipts';
 import { WhatsAppStatus } from '@/types/database';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
 import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
+import { CustomDateModal } from '@/components/dashboard/CustomDateModal';
 import { haptic } from '@/utils/haptics';
 
 export default function OrdersHistoryScreen() {
@@ -56,11 +59,52 @@ export default function OrdersHistoryScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPaymentFilter, setSelectedPaymentFilter] = useState<'all' | 'cash' | 'upi' | 'card'>('all');
 
+  type DatePreset = 'all' | 'today' | 'yesterday' | '7d' | 'custom';
+  const [dateFilter, setDateFilter] = useState<DatePreset>('all');
+  const [startDateIso, setStartDateIso] = useState<string | undefined>(undefined);
+  const [endDateIso, setEndDateIso] = useState<string | undefined>(undefined);
+  const [customDateLabel, setCustomDateLabel] = useState<string | null>(null);
+  const [showCustomDateModal, setShowCustomDateModal] = useState(false);
+
+  const handleSelectDatePreset = (preset: DatePreset) => {
+    haptic.selection();
+    setDateFilter(preset);
+    const now = new Date();
+
+    switch (preset) {
+      case 'all':
+        setStartDateIso(undefined);
+        setEndDateIso(undefined);
+        setCustomDateLabel(null);
+        break;
+      case 'today':
+        setStartDateIso(startOfDay(now).toISOString());
+        setEndDateIso(endOfDay(now).toISOString());
+        setCustomDateLabel('Today');
+        break;
+      case 'yesterday': {
+        const y = subDays(now, 1);
+        setStartDateIso(startOfDay(y).toISOString());
+        setEndDateIso(endOfDay(y).toISOString());
+        setCustomDateLabel('Yesterday');
+        break;
+      }
+      case '7d':
+        setStartDateIso(startOfDay(subDays(now, 7)).toISOString());
+        setEndDateIso(endOfDay(now).toISOString());
+        setCustomDateLabel('Past 7 Days');
+        break;
+      case 'custom':
+        setShowCustomDateModal(true);
+        break;
+    }
+  };
+
   const loadData = useCallback(async () => {
     if (!bakeryId) return;
 
     try {
-      const data = await fetchRecentOrders(bakeryId, 100);
+      const data = await fetchRecentOrders(bakeryId, 200, startDateIso, endDateIso);
       setOrders(data);
     } catch (err) {
       console.error('Failed to load order history:', err);
@@ -68,7 +112,7 @@ export default function OrdersHistoryScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [bakeryId]);
+  }, [bakeryId, startDateIso, endDateIso]);
 
   useFocusEffect(
     useCallback(() => {
@@ -158,6 +202,11 @@ export default function OrdersHistoryScreen() {
       return matchesSearch && matchesPayment;
     });
   }, [orders, searchQuery, selectedPaymentFilter]);
+
+  const { totalRevenue, totalCount } = useMemo(() => {
+    const total = filteredOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+    return { totalRevenue: total, totalCount: filteredOrders.length };
+  }, [filteredOrders]);
 
   const renderWhatsAppStatusBadge = (status?: WhatsAppStatus) => {
     switch (status) {
@@ -448,8 +497,65 @@ export default function OrdersHistoryScreen() {
           )}
         </View>
 
-        {/* Payment Filter Pills */}
-        <View style={[styles.filterRow, { paddingHorizontal: spacing.lg, marginTop: spacing.sm }]}>
+        {/* Date Filter Pills */}
+        <View style={{ marginTop: spacing.xs }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[styles.dateFilterScroll, { paddingHorizontal: spacing.lg }]}
+          >
+            {(['all', 'today', 'yesterday', '7d', 'custom'] as const).map((preset) => {
+              const isSelected = dateFilter === preset;
+              const label =
+                preset === 'all'
+                  ? 'All Time'
+                  : preset === 'today'
+                  ? 'Today'
+                  : preset === 'yesterday'
+                  ? 'Yesterday'
+                  : preset === '7d'
+                  ? 'Past 7 Days'
+                  : customDateLabel
+                  ? customDateLabel
+                  : 'Custom Range 📅';
+
+              return (
+                <TouchableOpacity
+                  key={preset}
+                  onPress={() => handleSelectDatePreset(preset)}
+                  style={[
+                    styles.dateFilterChip,
+                    {
+                      backgroundColor: isSelected ? colors.primary : colors.surface,
+                      borderColor: isSelected ? colors.primary : colors.borderSubtle,
+                      borderRadius: borderRadius.full,
+                    },
+                  ]}
+                  activeOpacity={0.8}
+                >
+                  {preset === 'custom' && (
+                    <CalendarIcon
+                      size={12}
+                      color={isSelected ? '#FFFFFF' : colors.textMuted}
+                      style={{ marginRight: 4 }}
+                    />
+                  )}
+                  <Text
+                    style={[
+                      typography.captionBold,
+                      { color: isSelected ? '#FFFFFF' : colors.text, fontSize: 11 },
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* Payment Filter Pills & Revenue Summary */}
+        <View style={[styles.filterRow, { paddingHorizontal: spacing.lg, marginTop: spacing.xs }]}>
           {(['all', 'cash', 'upi', 'card'] as const).map((method) => {
             const isSelected = selectedPaymentFilter === method;
             return (
@@ -479,6 +585,30 @@ export default function OrdersHistoryScreen() {
               </TouchableOpacity>
             );
           })}
+        </View>
+
+        {/* Order Count & Total Revenue Bar */}
+        <View
+          style={[
+            styles.summaryBar,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.borderSubtle,
+              marginHorizontal: spacing.lg,
+              marginTop: spacing.xs,
+              borderRadius: borderRadius.md,
+            },
+          ]}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Receipt size={13} color={colors.primary} style={{ marginRight: 6 }} />
+            <Text style={[typography.captionBold, { color: colors.text, fontSize: 11 }]}>
+              {totalCount} {totalCount === 1 ? 'Order' : 'Orders'}
+            </Text>
+          </View>
+          <Text style={[typography.captionBold, { color: colors.primary, fontSize: 11 }]}>
+            Total: {currency} {totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Text>
         </View>
 
         {/* Orders List */}
@@ -531,6 +661,20 @@ export default function OrdersHistoryScreen() {
           loadData();
         }}
       />
+
+      {/* Custom Date Range Modal */}
+      <CustomDateModal
+        visible={showCustomDateModal}
+        initialStartDate={startDateIso}
+        initialEndDate={endDateIso}
+        onClose={() => setShowCustomDateModal(false)}
+        onApply={(s, e, label) => {
+          setStartDateIso(s);
+          setEndDateIso(e);
+          setCustomDateLabel(label);
+          setDateFilter('custom');
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -566,6 +710,27 @@ const styles = StyleSheet.create({
   filterPill: {
     paddingHorizontal: 12,
     paddingVertical: 5,
+    borderWidth: 1,
+  },
+  dateFilterScroll: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    paddingVertical: 2,
+  },
+  dateFilterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderWidth: 1,
+  },
+  summaryBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderWidth: 1,
   },
   listContent: {
