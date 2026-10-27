@@ -9,6 +9,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -40,6 +41,7 @@ import {
   Layers,
   ChefHat,
   Save,
+  Activity,
 } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { BakeryScale } from '@/types/database';
@@ -50,7 +52,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
-import { haptic } from '@/utils/haptics';
+import { haptic, getHapticsEnabled, setHapticsEnabled } from '@/utils/haptics';
 import {
   checkForOTAUpdate,
   fetchAndApplyOTAUpdate,
@@ -102,6 +104,17 @@ export default function SettingsScreen() {
   const [deletePassword, setDeletePassword] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Vibrations / Haptic Feedback Toggle State
+  const [vibrationsEnabled, setVibrationsEnabled] = useState(getHapticsEnabled());
+
+  const handleToggleVibrations = async (val: boolean) => {
+    setVibrationsEnabled(val);
+    await setHapticsEnabled(val);
+    if (val) {
+      haptic.success();
+    }
+  };
 
   const subStatus = getSubscriptionStatus(currentBakery);
   const updateMeta = getUpdateMetadata();
@@ -542,6 +555,30 @@ export default function SettingsScreen() {
                 );
               })}
             </ScrollView>
+          </Card>
+
+          {/* App Vibrations & Haptics Card */}
+          <Card style={{ marginTop: spacing.lg }}>
+            <View style={styles.cardHeader}>
+              <View style={styles.row}>
+                <Activity size={20} color={colors.primary} />
+                <Text style={[typography.h3, { color: colors.text, marginLeft: 8 }]}>
+                  App Vibrations & Haptics
+                </Text>
+              </View>
+              <Switch
+                value={vibrationsEnabled}
+                onValueChange={handleToggleVibrations}
+                trackColor={{ false: colors.borderSubtle, true: colors.primary }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+
+            <Text style={[typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
+              {vibrationsEnabled
+                ? 'Tactile vibration feedback is ON for POS item taps, buttons, and notifications.'
+                : 'All vibrations and haptic feedback in the app are muted.'}
+            </Text>
           </Card>
 
           {/* Over-The-Air (OTA) Updates Card */}

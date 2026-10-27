@@ -1,15 +1,47 @@
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const HAPTICS_STORAGE_KEY = '@bakeflow_haptics_enabled';
+
+// In-memory state (defaults to true)
+let _isHapticsEnabled = true;
+
+// Preload setting from AsyncStorage
+AsyncStorage.getItem(HAPTICS_STORAGE_KEY)
+  .then((val) => {
+    if (val !== null) {
+      _isHapticsEnabled = val === 'true';
+    }
+  })
+  .catch(() => {});
 
 /**
- * Safe haptic feedback wrapper with fallback for platforms that do not support it.
+ * Returns current vibration / haptics enabled status.
+ */
+export const getHapticsEnabled = (): boolean => _isHapticsEnabled;
+
+/**
+ * Updates vibration / haptics enabled status and persists to AsyncStorage.
+ */
+export const setHapticsEnabled = async (enabled: boolean): Promise<void> => {
+  _isHapticsEnabled = enabled;
+  try {
+    await AsyncStorage.setItem(HAPTICS_STORAGE_KEY, String(enabled));
+  } catch (err) {
+    console.warn('Failed to save haptics setting:', err);
+  }
+};
+
+/**
+ * Safe haptic feedback wrapper with toggle support and fallback for platforms that do not support it.
  */
 export const haptic = {
   /**
    * Crisp light tap - ideal for product selection, stepper increment/decrement
    */
   light: async () => {
-    if (Platform.OS === 'web') return;
+    if (!_isHapticsEnabled || Platform.OS === 'web') return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {
@@ -21,7 +53,7 @@ export const haptic = {
    * Medium impact - ideal for action confirmations, modal opens, category switch
    */
   medium: async () => {
-    if (Platform.OS === 'web') return;
+    if (!_isHapticsEnabled || Platform.OS === 'web') return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {
@@ -33,7 +65,7 @@ export const haptic = {
    * Heavy impact - ideal for deletes, voids, overrides
    */
   heavy: async () => {
-    if (Platform.OS === 'web') return;
+    if (!_isHapticsEnabled || Platform.OS === 'web') return;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     } catch {
@@ -45,7 +77,7 @@ export const haptic = {
    * Selection tick - ideal for tab changes, category pills, mode switch
    */
   selection: async () => {
-    if (Platform.OS === 'web') return;
+    if (!_isHapticsEnabled || Platform.OS === 'web') return;
     try {
       await Haptics.selectionAsync();
     } catch {
@@ -57,7 +89,7 @@ export const haptic = {
    * Success notification - order completion, successful cloud sync
    */
   success: async () => {
-    if (Platform.OS === 'web') return;
+    if (!_isHapticsEnabled || Platform.OS === 'web') return;
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch {
@@ -69,7 +101,7 @@ export const haptic = {
    * Warning notification - clearing cart, low stock alert
    */
   warning: async () => {
-    if (Platform.OS === 'web') return;
+    if (!_isHapticsEnabled || Platform.OS === 'web') return;
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     } catch {
@@ -81,7 +113,7 @@ export const haptic = {
    * Error notification - failed submission, validation error
    */
   error: async () => {
-    if (Platform.OS === 'web') return;
+    if (!_isHapticsEnabled || Platform.OS === 'web') return;
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } catch {

@@ -81,7 +81,7 @@ export default function SignupScreen() {
 
   const handleVerifyOtp = async () => {
     if (!otpCode.trim() || otpCode.trim().length < 6) {
-      setErrorMessage('Please enter the complete 6-digit code.');
+      setErrorMessage('Please enter the complete 8-digit code.');
       return;
     }
 
@@ -178,7 +178,7 @@ export default function SignupScreen() {
           </Text>
           <Text style={[typography.subtitle, { color: colors.textMuted, marginTop: spacing.xs }]}>
             {step === 'otp'
-              ? 'Enter the 6-digit code sent to your inbox'
+              ? 'Enter the 8-digit code sent to your inbox'
               : 'Join as bakery owner or staff'}
           </Text>
         </View>
@@ -260,7 +260,7 @@ export default function SignupScreen() {
 
             <View style={[styles.footerRow, { marginTop: spacing.sm }]}>
               <Text style={[typography.body, { color: colors.textMuted }]}>
-                Already got a 6-digit code?{' '}
+                Already got an 8-digit code?{' '}
               </Text>
               <Link
                 href={{
@@ -296,7 +296,7 @@ export default function SignupScreen() {
               Enter Verification Code
             </Text>
             <Text style={[typography.caption, { color: colors.textMuted, marginBottom: spacing.md }]}>
-              We sent a 6-digit OTP code to{' '}
+              We sent an 8-digit OTP code to{' '}
               <Text style={{ fontWeight: 'bold', color: colors.text }}>{email.trim()}</Text>
             </Text>
 

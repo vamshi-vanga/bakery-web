@@ -30,7 +30,7 @@ export default function VerifyOtpScreen() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(
-    params.email ? `We sent a 6-digit verification code to ${params.email}` : null
+    params.email ? `We sent an 8-digit verification code to ${params.email}` : null
   );
 
   const [resendCooldown, setResendCooldown] = useState(60);
@@ -63,7 +63,7 @@ export default function VerifyOtpScreen() {
     }
 
     if (code.length < 6) {
-      setErrorMessage('Please enter your full verification code.');
+      setErrorMessage('Please enter your complete 8-digit verification code.');
       return;
     }
 
@@ -231,7 +231,7 @@ export default function VerifyOtpScreen() {
           >
             {isSuccess
               ? 'Your account is ready. Entering setup...'
-              : 'Enter the 6-digit OTP code sent to your Gmail'}
+              : 'Enter the 8-digit OTP code sent to your email'}
           </Text>
         </View>
 

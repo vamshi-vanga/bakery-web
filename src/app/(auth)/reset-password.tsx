@@ -78,7 +78,7 @@ export default function ResetPasswordScreen() {
 
     if (otpCode.trim().length < 6) {
       haptic.error();
-      setErrorMessage('Please enter the complete 6 or 8-digit recovery code.');
+      setErrorMessage('Please enter the complete 8-digit recovery code.');
       return;
     }
 
@@ -407,7 +407,7 @@ export default function ResetPasswordScreen() {
                   Recovery Code (OTP) *
                 </Text>
                 <Text style={[typography.caption, { color: colors.textMuted }]}>
-                  {otpCode.length > 0 ? `${otpCode.length}/8 digits` : '6 or 8 digits'}
+                  {otpCode.length > 0 ? `${otpCode.length}/8 digits` : '8 digits'}
                 </Text>
               </View>
 

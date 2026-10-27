@@ -353,7 +353,7 @@ export default function POSOrderScreen() {
     <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.responsiveContainer}>
         {/* Header (Executive POS Branding Bar) */}
-        <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: spacing.sm }]}>
+        <View style={[styles.header, { paddingHorizontal: spacing.lg, paddingTop: 4, paddingBottom: 2 }]}>
           <View style={styles.headerLeft}>
             <View
               style={[
@@ -377,8 +377,12 @@ export default function POSOrderScreen() {
               </Text>
               <View style={styles.headerStatusRow}>
                 <View style={styles.headerLiveDot} />
-                <Text style={[typography.caption, { color: colors.textMuted, fontSize: 11 }]}>
-                  Counter Register • Live
+                <Text
+                  style={[typography.caption, { color: colors.textMuted, fontSize: 11 }]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  Live Register
                 </Text>
               </View>
             </View>
@@ -397,9 +401,10 @@ export default function POSOrderScreen() {
                   { borderRadius: borderRadius.full },
                 ]}
                 activeOpacity={0.8}
+                accessibilityLabel="Upgrade Plan"
               >
-                <Sparkles size={12} color="#FFFFFF" />
-                <Text style={styles.trialUpgradeBtnText}>Upgrade Plan</Text>
+                <Sparkles size={11} color="#FFFFFF" />
+                <Text style={styles.trialUpgradeBtnText}>Upgrade</Text>
               </TouchableOpacity>
             )}
 
@@ -412,13 +417,14 @@ export default function POSOrderScreen() {
                   {
                     backgroundColor: colors.dangerLight,
                     borderColor: colors.danger,
-                    borderRadius: borderRadius.md,
+                    borderRadius: borderRadius.full,
                   },
                 ]}
                 activeOpacity={0.7}
+                accessibilityLabel="Clear Cart"
               >
-                <Trash2 size={14} color={colors.danger} style={{ marginRight: 4 }} />
-                <Text style={[typography.captionBold, { color: colors.danger, fontSize: 12 }]}>
+                <Trash2 size={13} color={colors.danger} />
+                <Text style={[typography.captionBold, { color: colors.danger, fontSize: 11, marginLeft: 2 }]}>
                   Clear
                 </Text>
               </TouchableOpacity>
@@ -442,14 +448,14 @@ export default function POSOrderScreen() {
             {
               backgroundColor: colors.surface,
               borderColor: colors.borderSubtle,
-              borderRadius: borderRadius.lg,
+              borderRadius: borderRadius.md,
               marginHorizontal: spacing.lg,
-              marginTop: spacing.md,
+              marginTop: 6,
               paddingHorizontal: spacing.md,
             },
           ]}
         >
-          <Search size={18} color={colors.textMuted} />
+          <Search size={16} color={colors.textMuted} />
           <TextInput
             placeholder="Search items by name..."
             placeholderTextColor={colors.textLight}
@@ -458,14 +464,14 @@ export default function POSOrderScreen() {
             style={[styles.searchInput, typography.body, { color: colors.text }]}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 6 }}>
-              <X size={16} color={colors.textMuted} />
+            <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
+              <X size={15} color={colors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
 
         {/* Category Pills (Barbershop minimalist style) */}
-        <View style={{ marginTop: spacing.md }}>
+        <View style={{ marginTop: 6 }}>
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -651,25 +657,25 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 8,
   },
   headerTextWrap: {
-    marginLeft: 10,
+    marginLeft: 8,
     flex: 1,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     flexShrink: 0,
   },
   trialUpgradeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F97316',
-    paddingHorizontal: 9,
-    paddingVertical: 7,
-    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    gap: 3,
     elevation: 2,
     shadowColor: '#F97316',
     shadowOffset: { width: 0, height: 1 },
@@ -679,11 +685,11 @@ const styles = StyleSheet.create({
   trialUpgradeBtnText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 11.5,
+    fontSize: 11,
   },
   brandLogoWrap: {
-    width: 36,
-    height: 36,
+    width: 34,
+    height: 34,
     borderRadius: 10,
     borderWidth: 1,
     alignItems: 'center',
@@ -691,13 +697,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   headerBrandLogo: {
-    width: 26,
-    height: 26,
+    width: 24,
+    height: 24,
   },
   headerStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
     marginTop: 1,
   },
   headerLiveDot: {
@@ -709,25 +715,26 @@ const styles = StyleSheet.create({
   clearBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
     borderWidth: 1,
     flexShrink: 0,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 48,
+    height: 40,
     borderWidth: 1,
   },
   searchInput: {
     flex: 1,
-    height: 48,
-    marginLeft: 10,
+    height: 40,
+    marginLeft: 8,
+    paddingVertical: 0,
   },
   categoryPill: {
-    paddingHorizontal: 18,
-    paddingVertical: 9,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -735,13 +742,13 @@ const styles = StyleSheet.create({
   addCategoryPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderWidth: 1,
     borderStyle: 'dashed',
   },
   gridContent: {
-    paddingTop: 14,
+    paddingTop: 8,
   },
   columnWrapper: {
     justifyContent: 'flex-start',
