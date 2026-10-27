@@ -59,6 +59,7 @@ import {
 import { getSubscriptionStatus } from '@/services/subscriptionService';
 import { SubscriptionPaywall } from '@/components/subscription/SubscriptionPaywall';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
+import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
 
 export default function SettingsScreen() {
   const { colors, spacing, typography, borderRadius, themeMode, themeColor, setThemeMode, setThemeColor } = useTheme();
@@ -365,7 +366,10 @@ export default function SettingsScreen() {
                 Manage bakery profile, appearance, and OTA updates
               </Text>
             </View>
-            <HeaderProfileButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <HeaderNotesButton />
+              <HeaderProfileButton />
+            </View>
           </View>
 
           {/* Theme & Appearance (Light / Dark / Auto) */}

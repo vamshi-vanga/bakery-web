@@ -15,6 +15,7 @@ import { recordSecurityHeartbeat, SecurityStatusResult } from '@/services/securi
 import { SubscriptionPaywall } from '@/components/subscription/SubscriptionPaywall';
 import { SubscriptionExpiryBanner } from '@/components/subscription/SubscriptionExpiryBanner';
 import { BakeryProfileModal } from '@/components/profile/BakeryProfileModal';
+import { BakeryNotesModal } from '@/components/notes/BakeryNotesModal';
 
 export default function MainLayout() {
   const { colors, typography, borderRadius } = useTheme();
@@ -28,6 +29,8 @@ export default function MainLayout() {
   const openSubscriptionModal = useUIStore((s) => s.openSubscriptionModal);
   const isProfileModalOpen = useUIStore((s) => s.isProfileModalOpen);
   const closeProfileModal = useUIStore((s) => s.closeProfileModal);
+  const isNotesModalOpen = useUIStore((s) => s.isNotesModalOpen);
+  const closeNotesModal = useUIStore((s) => s.closeNotesModal);
 
   // Periodic heartbeat: checks subscription status and anti-rollback ledger every 15 seconds
   // Automatically locks the app the moment 48 hours lapse, offline trial expires, or clock is rolled back
@@ -248,6 +251,12 @@ export default function MainLayout() {
           closeProfileModal();
           openSubscriptionModal();
         }}
+      />
+
+      {/* Global Bakery Notes Modal (Google Notes / Keep style) */}
+      <BakeryNotesModal
+        visible={isNotesModalOpen}
+        onClose={closeNotesModal}
       />
 
       {/* Global Upgrade / Renewal Subscription Modal */}

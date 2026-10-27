@@ -27,6 +27,7 @@ import { TopProductsList } from '@/components/dashboard/TopProductsList';
 import { DateRangeSelector } from '@/components/dashboard/DateRangeSelector';
 import { CustomDateModal } from '@/components/dashboard/CustomDateModal';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
+import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
 import { haptic } from '@/utils/haptics';
 
 export default function DashboardScreen() {
@@ -74,6 +75,7 @@ export default function DashboardScreen() {
               isConnected={isConnected}
               isReconnecting={isReconnecting}
             />
+            <HeaderNotesButton />
             <HeaderProfileButton />
           </View>
         </View>

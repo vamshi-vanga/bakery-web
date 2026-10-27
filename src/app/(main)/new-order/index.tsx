@@ -33,6 +33,7 @@ import { fetchCategories } from '@/services/categories';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { CategoryManageModal } from '@/components/categories/CategoryManageModal';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
+import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
 import { getSubscriptionStatus } from '@/services/subscriptionService';
 import { haptic } from '@/utils/haptics';
 
@@ -422,6 +423,9 @@ export default function POSOrderScreen() {
                 </Text>
               </TouchableOpacity>
             )}
+
+            {/* Notes Button right beside Account */}
+            <HeaderNotesButton />
 
             {/* Profile Icon on Top Right Corner */}
             <HeaderProfileButton onPress={openProfileModal} />

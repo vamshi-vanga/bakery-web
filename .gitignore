@@ -44,3 +44,10 @@ example
 # generated native folders
 /ios
 /android
+
+# local copies & data scratch
+*- Copy*
+*- Copy/*
+*.xlsx
+telangana_menu.json
+

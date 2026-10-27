@@ -33,6 +33,7 @@ import { fetchProducts } from '@/services/products';
 import { fetchCategories } from '@/services/categories';
 import { CategoryManageModal } from '@/components/categories/CategoryManageModal';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
+import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
 import { haptic } from '@/utils/haptics';
 
 export default function ProductsScreen() {
@@ -270,10 +271,14 @@ export default function ProductsScreen() {
                 </Text>
               </TouchableOpacity>
 
+              <HeaderNotesButton />
               <HeaderProfileButton />
             </View>
           ) : (
-            <HeaderProfileButton />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <HeaderNotesButton />
+              <HeaderProfileButton />
+            </View>
           )}
         </View>
 

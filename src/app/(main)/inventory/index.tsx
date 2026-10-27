@@ -28,6 +28,7 @@ import { InventorySummaryCards } from '@/components/inventory/InventorySummaryCa
 import { StockAdjustModal } from '@/components/inventory/StockAdjustModal';
 import { MovementHistoryList } from '@/components/inventory/MovementHistoryList';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
+import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
 
 type MainView = 'stock' | 'movements';
 type StockFilter = 'all' | 'low' | 'out';
@@ -193,7 +194,10 @@ export default function InventoryScreen() {
               {currentBakery?.name ?? 'Bakery'} Management
             </Text>
           </View>
-          <HeaderProfileButton />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <HeaderNotesButton />
+            <HeaderProfileButton />
+          </View>
         </View>
 
       {/* Summary Metrics */}

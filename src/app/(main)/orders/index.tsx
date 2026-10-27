@@ -38,6 +38,7 @@ import { ReceiptModal } from '@/components/receipts/ReceiptModal';
 import { ReceiptOrderData } from '@/services/receipts';
 import { WhatsAppStatus } from '@/types/database';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
+import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
 import { haptic } from '@/utils/haptics';
 
 export default function OrdersHistoryScreen() {
@@ -412,7 +413,10 @@ export default function OrdersHistoryScreen() {
               Billing IDs, item details & order revenue logs
             </Text>
           </View>
-          <HeaderProfileButton />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <HeaderNotesButton />
+            <HeaderProfileButton />
+          </View>
         </View>
 
         {/* Search Bar */}
