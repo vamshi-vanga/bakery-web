@@ -11,18 +11,31 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ShieldCheck, Mail, Lock, RefreshCw, ArrowLeft, CheckCircle2 } from 'lucide-react-native';
+import {
+  ShieldCheck,
+  Mail,
+  Lock,
+  RefreshCw,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  KeyRound,
+} from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { haptic } from '@/utils/haptics';
 
 export default function ResetPasswordScreen() {
   const { colors, spacing, typography, borderRadius } = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{ email?: string }>();
+
+  // Wizard step: 1 = Enter OTP -> Click Next, 2 = Enter New Password twice
+  const [step, setStep] = useState<1 | 2>(1);
 
   const [email, setEmail] = useState(params.email ?? '');
   const [otpCode, setOtpCode] = useState('');
@@ -55,7 +68,8 @@ export default function ResetPasswordScreen() {
     setErrorMessage(null);
   };
 
-  const handleResetPassword = async () => {
+  // Step 1: Verify OTP and proceed to Step 2
+  const handleVerifyOtp = async () => {
     if (!email.trim()) {
       haptic.error();
       setErrorMessage('Please enter your email address.');
@@ -64,19 +78,7 @@ export default function ResetPasswordScreen() {
 
     if (otpCode.trim().length < 6) {
       haptic.error();
-      setErrorMessage('Please enter the complete recovery code.');
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      haptic.error();
-      setErrorMessage('New password must be at least 6 characters.');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      haptic.error();
-      setErrorMessage('Passwords do not match.');
+      setErrorMessage('Please enter the complete 6 or 8-digit recovery code.');
       return;
     }
 
@@ -85,7 +87,6 @@ export default function ResetPasswordScreen() {
     setErrorMessage(null);
 
     try {
-      // Step 1: Verify the recovery OTP token
       const { error: otpError } = await supabase.auth.verifyOtp({
         email: email.trim(),
         token: otpCode.trim(),
@@ -98,7 +99,36 @@ export default function ResetPasswordScreen() {
         return;
       }
 
-      // Step 2: Update to the new password
+      haptic.success();
+      setInfoMessage('Recovery code verified successfully! Now set your new password.');
+      setStep(2);
+    } catch (err: any) {
+      haptic.error();
+      setErrorMessage(err.message ?? 'Failed to verify recovery code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: Set New Password
+  const handleUpdatePassword = async () => {
+    if (newPassword.length < 6) {
+      haptic.error();
+      setErrorMessage('New password must be at least 6 characters.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      haptic.error();
+      setErrorMessage('Passwords do not match. Please re-enter.');
+      return;
+    }
+
+    haptic.medium();
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -113,7 +143,7 @@ export default function ResetPasswordScreen() {
       setIsSuccess(true);
     } catch (err: any) {
       haptic.error();
-      setErrorMessage(err.message ?? 'Failed to reset password.');
+      setErrorMessage(err.message ?? 'Failed to update password.');
     } finally {
       setLoading(false);
     }
@@ -248,13 +278,21 @@ export default function ResetPasswordScreen() {
             >
               {isSuccess ? (
                 <CheckCircle2 size={40} color={colors.success} />
+              ) : step === 1 ? (
+                <KeyRound size={40} color={colors.primary} />
               ) : (
                 <ShieldCheck size={40} color={colors.primary} />
               )}
             </View>
+
             <Text style={[typography.h1, { color: colors.text, marginTop: spacing.md }]}>
-              {isSuccess ? 'Password Reset!' : 'Set New Password'}
+              {isSuccess
+                ? 'Password Reset Complete!'
+                : step === 1
+                ? 'Enter Recovery OTP'
+                : 'Create New Password'}
             </Text>
+
             <Text
               style={[
                 typography.subtitle,
@@ -262,9 +300,25 @@ export default function ResetPasswordScreen() {
               ]}
             >
               {isSuccess
-                ? 'Your new credentials are saved. You are ready to go!'
-                : 'Enter your recovery code and choose a new password.'}
+                ? 'Your password has been successfully updated.'
+                : step === 1
+                ? 'Enter the verification code sent to your email, then click Next.'
+                : 'Enter your new password two times to confirm.'}
             </Text>
+
+            {!isSuccess && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm, gap: 8 }}>
+                <Badge
+                  label={step === 1 ? 'Step 1 of 2: Enter OTP' : 'Step 1: Verified ✓'}
+                  variant={step === 1 ? 'primary' : 'success'}
+                />
+                <ArrowRight size={14} color={colors.textMuted} />
+                <Badge
+                  label="Step 2 of 2: New Password"
+                  variant={step === 2 ? 'primary' : 'neutral'}
+                />
+              </View>
+            )}
           </View>
 
           {isSuccess ? (
@@ -277,7 +331,7 @@ export default function ResetPasswordScreen() {
                     { color: colors.textMuted, textAlign: 'center', marginBottom: spacing.lg },
                   ]}
                 >
-                  Your account password has been safely updated. You can proceed directly into the POS or sign in fresh.
+                  Your account password has been safely updated. You can proceed directly into BakeFlow POS or sign in again.
                 </Text>
 
                 <Button
@@ -296,8 +350,8 @@ export default function ResetPasswordScreen() {
                 />
               </View>
             </Card>
-          ) : (
-            /* Reset Form Card */
+          ) : step === 1 ? (
+            /* Step 1 Card: Enter OTP & Click Next */
             <Card style={styles.card}>
               {infoMessage && (
                 <View
@@ -350,7 +404,7 @@ export default function ResetPasswordScreen() {
               {/* Recovery Code */}
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs }}>
                 <Text style={[typography.captionBold, { color: colors.text }]}>
-                  Recovery Code
+                  Recovery Code (OTP) *
                 </Text>
                 <Text style={[typography.caption, { color: colors.textMuted }]}>
                   {otpCode.length > 0 ? `${otpCode.length}/8 digits` : '6 or 8 digits'}
@@ -377,42 +431,21 @@ export default function ResetPasswordScreen() {
                 autoFocus
               />
 
-              {/* New Password */}
-              <Input
-                label="New Password"
-                placeholder="At least 6 characters"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                leftIcon={<Lock size={20} color={colors.textMuted} />}
-              />
-
-              {/* Confirm Password */}
-              <Input
-                label="Confirm New Password"
-                placeholder="Re-enter your new password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                leftIcon={<Lock size={20} color={colors.textMuted} />}
-              />
-
               <Button
-                title={loading ? 'Updating Password...' : 'Reset & Update Password'}
-                onPress={handleResetPassword}
+                title={loading ? 'Verifying OTP...' : 'Next'}
+                onPress={handleVerifyOtp}
                 loading={loading}
-                disabled={otpCode.length < 6 || !newPassword || loading}
+                disabled={otpCode.length < 6 || loading}
                 size="lg"
-                style={{ marginTop: spacing.sm }}
+                icon={<ArrowRight size={18} color="#FFFFFF" />}
+                style={{ marginTop: spacing.md }}
               />
 
               {/* Resend Action */}
               <View style={styles.resendContainer}>
                 {resendCooldown > 0 ? (
                   <Text style={[typography.caption, { color: colors.textMuted }]}>
-                    Resend code in <Text style={{ fontWeight: 'bold' }}>{resendCooldown}s</Text>
+                    Resend OTP in <Text style={{ fontWeight: 'bold' }}>{resendCooldown}s</Text>
                   </Text>
                 ) : (
                   <TouchableOpacity
@@ -422,7 +455,7 @@ export default function ResetPasswordScreen() {
                   >
                     <RefreshCw size={14} color={colors.primary} />
                     <Text style={[typography.captionBold, { color: colors.primary, marginLeft: 6 }]}>
-                      {resending ? 'Sending...' : 'Resend Code'}
+                      {resending ? 'Sending OTP...' : 'Resend OTP Code'}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -444,6 +477,92 @@ export default function ResetPasswordScreen() {
                 </TouchableOpacity>
               </View>
             </Card>
+          ) : (
+            /* Step 2 Card: Enter New Password Two Times */
+            <Card style={styles.card}>
+              {infoMessage && (
+                <View
+                  style={[
+                    styles.alertBox,
+                    {
+                      backgroundColor: colors.successLight,
+                      borderColor: colors.success,
+                      borderRadius: borderRadius.md,
+                      marginBottom: spacing.md,
+                    },
+                  ]}
+                >
+                  <Text style={[typography.caption, { color: colors.successText, textAlign: 'center' }]}>
+                    {infoMessage}
+                  </Text>
+                </View>
+              )}
+
+              {errorMessage && (
+                <View
+                  style={[
+                    styles.alertBox,
+                    {
+                      backgroundColor: colors.dangerLight,
+                      borderColor: colors.danger,
+                      borderRadius: borderRadius.md,
+                      marginBottom: spacing.md,
+                    },
+                  ]}
+                >
+                  <Text style={[typography.caption, { color: colors.dangerText, textAlign: 'center' }]}>
+                    {errorMessage}
+                  </Text>
+                </View>
+              )}
+
+              {/* New Password */}
+              <Input
+                label="New Password *"
+                placeholder="At least 6 characters"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                leftIcon={<Lock size={20} color={colors.textMuted} />}
+                helperText="Use a strong password with letters and numbers"
+              />
+
+              {/* Confirm Password */}
+              <Input
+                label="Confirm New Password *"
+                placeholder="Re-enter your new password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                leftIcon={<Lock size={20} color={colors.textMuted} />}
+                helperText="Must match your new password exactly"
+              />
+
+              <Button
+                title={loading ? 'Updating Password...' : 'Save New Password'}
+                onPress={handleUpdatePassword}
+                loading={loading}
+                disabled={!newPassword || !confirmPassword || loading}
+                size="lg"
+                style={{ marginTop: spacing.sm }}
+              />
+
+              <TouchableOpacity
+                onPress={() => {
+                  haptic.light();
+                  setStep(1);
+                  setErrorMessage(null);
+                }}
+                style={[styles.backRow, { marginTop: spacing.lg, alignSelf: 'center' }]}
+              >
+                <ArrowLeft size={16} color={colors.textMuted} />
+                <Text style={[typography.captionBold, { color: colors.textMuted, marginLeft: 6 }]}>
+                  Back to OTP Verification
+                </Text>
+              </TouchableOpacity>
+            </Card>
           )}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -464,30 +583,24 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   logoBadge: {
-    width: 72,
-    height: 72,
+    width: 80,
+    height: 80,
     alignItems: 'center',
     justifyContent: 'center',
   },
   card: {
-    width: '100%',
-  },
-  successContent: {
-    alignItems: 'center',
-    paddingVertical: 12,
+    marginTop: 16,
   },
   alertBox: {
     padding: 12,
     borderWidth: 1,
   },
   boxesContainer: {
+    marginVertical: 12,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    marginVertical: 4,
   },
   boxesWrapper: {
     flexDirection: 'row',
@@ -496,53 +609,54 @@ const styles = StyleSheet.create({
   },
   groupContainer: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 8,
   },
   separator: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   separatorText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   digitBox: {
-    width: 34,
+    width: 38,
     height: 48,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   digitText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '700',
   },
   hiddenInput: {
     position: 'absolute',
+    opacity: 0,
     width: 1,
     height: 1,
-    opacity: 0,
   },
   resendContainer: {
-    alignItems: 'center',
     marginTop: 16,
+    alignItems: 'center',
   },
   resendButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    padding: 8,
   },
   footerRow: {
+    marginTop: 20,
     alignItems: 'center',
-    marginTop: 18,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#33333333',
-    paddingTop: 14,
   },
   backRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 4,
+  },
+  successContent: {
+    alignItems: 'center',
+    paddingVertical: 12,
   },
 });

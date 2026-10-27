@@ -20,7 +20,7 @@ import {
   AlertCircle,
   Smartphone,
 } from 'lucide-react-native';
-import { captureRef } from 'react-native-view-shot';
+import ViewShot, { captureRef } from 'react-native-view-shot';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/theme';
 import { Button } from '@/components/ui/Button';
@@ -114,6 +114,9 @@ export function ReceiptModal({ visible, order, onClose, onStatusUpdated }: Props
     try {
       // Small pause to ensure layout rendering is complete
       await new Promise((r) => setTimeout(r, 60));
+      if (typeof receiptCardRef.current.capture === 'function') {
+        return await receiptCardRef.current.capture();
+      }
       const uri = await captureRef(receiptCardRef, {
         format: 'png',
         quality: 1.0,
@@ -299,9 +302,9 @@ export function ReceiptModal({ visible, order, onClose, onStatusUpdated }: Props
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 12 }}>
             {/* Visual Paper Receipt Card (Captured as Image) */}
-            <View
+            <ViewShot
               ref={receiptCardRef}
-              collapsable={false}
+              options={{ format: 'png', quality: 1.0 }}
               style={styles.paperReceiptCard}
             >
               {/* Bakery Header */}
@@ -403,7 +406,7 @@ export function ReceiptModal({ visible, order, onClose, onStatusUpdated }: Props
                   BakeFlow POS • Digital Customer Receipt
                 </Text>
               </View>
-            </View>
+            </ViewShot>
 
             {/* Delivery Status Badge */}
             <View style={{ alignItems: 'center', marginVertical: spacing.md }}>

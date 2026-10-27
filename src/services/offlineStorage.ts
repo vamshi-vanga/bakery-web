@@ -219,13 +219,36 @@ export async function queueOfflineOrder(payload: OfflineOrderPayload): Promise<v
 }
 
 /**
- * Get all pending/failed orders that need to be synced to the cloud.
+ * Get orders that can be synced to the cloud. Failed orders require an
+ * explicit retry so a repeated server-side rejection stays visible to staff.
  */
-export async function getPendingOfflineOrders(bakeryId: string): Promise<StoredOfflineOrder[]> {
+export async function getPendingOfflineOrders(
+  bakeryId: string,
+  includeFailed = false
+): Promise<StoredOfflineOrder[]> {
   const db = getDatabase();
+  const statuses = includeFailed ? "('pending', 'failed')" : "('pending')";
   return db.getAllAsync<StoredOfflineOrder>(
     `SELECT * FROM offline_order_queue 
-     WHERE bakery_id = ? AND sync_status IN ('pending', 'failed')
+     WHERE bakery_id = ? AND sync_status IN ${statuses}
+     ORDER BY created_at ASC`,
+    [bakeryId]
+  );
+}
+
+export interface FailedOfflineOrder {
+  id: string;
+  order_number: string;
+  sync_error: string | null;
+}
+
+/** Orders that need a cashier to review and retry. */
+export async function getFailedOfflineOrders(bakeryId: string): Promise<FailedOfflineOrder[]> {
+  const db = getDatabase();
+  return db.getAllAsync<FailedOfflineOrder>(
+    `SELECT id, order_number, sync_error
+     FROM offline_order_queue
+     WHERE bakery_id = ? AND sync_status = 'failed'
      ORDER BY created_at ASC`,
     [bakeryId]
   );

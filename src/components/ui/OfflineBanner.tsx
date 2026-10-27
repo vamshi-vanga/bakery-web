@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { Alert, View, Text, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import * as Network from 'expo-network';
-import { WifiOff, CheckCircle2 } from 'lucide-react-native';
+import { WifiOff, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react-native';
 import { useSyncStore } from '@/stores/syncStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/theme';
@@ -12,10 +12,36 @@ export function OfflineBanner() {
   const isOnline = useSyncStore((s) => s.isOnline);
   const isSyncing = useSyncStore((s) => s.isSyncing);
   const pendingCount = useSyncStore((s) => s.pendingCount);
-
+  const failedCount = useSyncStore((s) => s.failedCount);
+  const failedOrders = useSyncStore((s) => s.failedOrders);
   const bakeryId = currentBakery?.id;
 
-  // Listen to network state and auto-sync offline queue silently without re-render thrashing
+  const reviewFailedOrders = () => {
+    if (failedOrders.length === 0) return;
+
+    const details = failedOrders
+      .map((order) => `${order.order_number}: ${order.sync_error ?? 'Unknown sync error'}`)
+      .join('\n\n');
+
+    Alert.alert(
+      `${failedOrders.length} order${failedOrders.length === 1 ? '' : 's'} need${failedOrders.length === 1 ? 's' : ''} attention`,
+      details,
+      isOnline && !isSyncing
+        ? [
+            { text: 'Close', style: 'cancel' },
+            {
+              text: 'Retry now',
+              onPress: () => {
+                if (bakeryId) {
+                  useSyncStore.getState().triggerSync(bakeryId, { retryFailed: true });
+                }
+              },
+            },
+          ]
+        : [{ text: 'Close', style: 'cancel' }]
+    );
+  };
+
   useEffect(() => {
     if (!bakeryId) return;
 
@@ -25,8 +51,8 @@ export function OfflineBanner() {
       try {
         const state = await Network.getNetworkStateAsync();
         const online = Boolean(state.isConnected && (state.isInternetReachable ?? true));
-
         const store = useSyncStore.getState();
+
         if (store.isOnline !== online) {
           store.setOnline(online);
         }
@@ -36,23 +62,18 @@ export function OfflineBanner() {
         const currentPending = useSyncStore.getState().pendingCount;
         const currentSyncing = useSyncStore.getState().isSyncing;
 
-        // ONLY trigger sync if we have actual pending offline orders and aren't already syncing
+        // Failed orders wait for the cashier to review their error and choose retry.
         if (online && currentPending > 0 && !currentSyncing) {
           await useSyncStore.getState().triggerSync(bakeryId);
         }
       } catch {
-        // Ignore network check errors
+        // A later polling cycle will retry the network check.
       }
     };
 
-    // Initial check
     checkAndSync();
-
-    // Check periodically for network restoration without resetting on store updates
     const interval = setInterval(() => {
-      if (isMounted) {
-        checkAndSync();
-      }
+      if (isMounted) checkAndSync();
     }, 15000);
 
     return () => {
@@ -61,10 +82,37 @@ export function OfflineBanner() {
     };
   }, [bakeryId]);
 
-  // If online and no pending orders, keep UI completely clean without any banner or flicker
-  if (isOnline && pendingCount === 0 && !isSyncing) {
+  const hasFailures = failedCount > 0;
+  const showFailure = hasFailures && !isSyncing;
+
+  if (isOnline && pendingCount === 0 && !isSyncing && !hasFailures) {
     return null;
   }
+
+  const title = !isOnline
+    ? 'Offline Mode Active'
+    : isSyncing
+    ? 'Syncing offline orders to cloud...'
+    : showFailure
+    ? 'Offline order sync needs attention'
+    : 'Connected • Offline Queue';
+
+  const message = !isOnline
+    ? `${pendingCount} pending • ${failedCount} failed order${failedCount === 1 ? '' : 's'} saved locally`
+    : isSyncing
+    ? `Uploading ${pendingCount} pending order${pendingCount === 1 ? '' : 's'}...`
+    : showFailure
+    ? `${failedCount} order${failedCount === 1 ? '' : 's'} could not sync. Review and retry.`
+    : 'All offline orders up to date';
+
+  const accent = !isOnline ? colors.accent : isSyncing ? colors.info : showFailure ? colors.danger : colors.primary;
+  const textColor = !isOnline
+    ? colors.accent
+    : isSyncing
+    ? colors.infoText
+    : showFailure
+    ? colors.dangerText
+    : colors.primary;
 
   return (
     <View
@@ -75,12 +123,10 @@ export function OfflineBanner() {
             ? colors.surfaceSubtle
             : isSyncing
             ? colors.infoLight
+            : showFailure
+            ? colors.dangerLight
             : colors.primaryLight,
-          borderColor: !isOnline
-            ? colors.accent
-            : isSyncing
-            ? colors.info
-            : colors.primary,
+          borderColor: accent,
           marginHorizontal: spacing.lg,
           marginTop: spacing.sm,
           marginBottom: spacing.xs,
@@ -95,39 +141,35 @@ export function OfflineBanner() {
           <WifiOff size={18} color={colors.accent} />
         ) : isSyncing ? (
           <ActivityIndicator size="small" color={colors.info} />
+        ) : showFailure ? (
+          <AlertCircle size={18} color={colors.danger} />
         ) : (
           <CheckCircle2 size={18} color={colors.primary} />
         )}
 
         <View style={{ marginLeft: 10, flex: 1 }}>
-          <Text
-            style={[
-              typography.captionBold,
-              {
-                color: !isOnline
-                  ? colors.accent
-                  : isSyncing
-                  ? colors.infoText
-                  : colors.primary,
-                fontSize: 13,
-              },
-            ]}
-          >
-            {!isOnline
-              ? 'Offline Mode Active'
-              : isSyncing
-              ? 'Syncing offline orders to cloud...'
-              : 'Connected • Offline Queue'}
-          </Text>
-          <Text style={[typography.caption, { color: colors.textMuted, fontSize: 11, marginTop: 1 }]}>
-            {!isOnline
-              ? `${pendingCount} order${pendingCount === 1 ? '' : 's'} saved locally (auto-syncs when online)`
-              : isSyncing
-              ? `Uploading ${pendingCount} pending order${pendingCount === 1 ? '' : 's'}...`
-              : 'All offline orders up to date'}
-          </Text>
+          <Text style={[typography.captionBold, { color: textColor, fontSize: 13 }]}>{title}</Text>
+          <Text style={[typography.caption, { color: colors.textMuted, fontSize: 11, marginTop: 1 }]}>{message}</Text>
         </View>
       </View>
+
+      {showFailure && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Review failed offline orders"
+          onPress={reviewFailedOrders}
+          style={({ pressed }) => [
+            styles.reviewButton,
+            {
+              borderColor: colors.danger,
+              backgroundColor: pressed ? colors.surfaceSubtle : 'transparent',
+            },
+          ]}
+        >
+          <RefreshCw size={14} color={colors.dangerText} />
+          <Text style={[typography.captionBold, { color: colors.dangerText, marginLeft: 5, fontSize: 12 }]}>Review</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -143,5 +185,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+  },
+  reviewButton: {
+    alignItems: 'center',
+    borderWidth: 1,
+    flexDirection: 'row',
+    marginLeft: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
   },
 });

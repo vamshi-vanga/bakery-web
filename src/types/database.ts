@@ -25,6 +25,7 @@ export type MovementType =
 
 export type SubscriptionPlan = 'trial' | 'eight_months' | 'one_year';
 export type SubscriptionStatus = 'none' | 'pending_approval' | 'active' | 'expired';
+export type BakeryScale = 'small' | 'medium' | 'large';
 
 export interface Bakery {
   id: string;
@@ -34,6 +35,7 @@ export interface Bakery {
   address: string | null;
   currency: string;
   timezone: string;
+  scale?: BakeryScale | null;
   subscription_plan?: SubscriptionPlan | null;
   subscription_status?: SubscriptionStatus | null;
   subscription_start?: string | null;
@@ -97,6 +99,9 @@ export interface Order {
   void_reason: string | null;
   created_at: string;
   updated_at: string;
+  offline_order_id?: string | null;
+  offline_order_number?: string | null;
+  synced_at?: string | null;
   order_items?: OrderItem[];
 }
 

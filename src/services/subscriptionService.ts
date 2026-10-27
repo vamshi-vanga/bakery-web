@@ -410,53 +410,28 @@ export async function activateBakeryPlan(
       };
     }
 
-    // 1. Attempt atomic RPC call
-    const { error: rpcError } = await supabase.rpc('activate_bakery_plan', {
+    // Subscription changes are made only by the server-side RPC. Never fall
+    // back to a direct table update because that would let a client forge an
+    // active subscription through the public API.
+    const { data: rpcData, error: rpcError } = await supabase.rpc('activate_bakery_plan', {
       p_bakery_id: bakeryId,
       p_plan: plan,
     });
 
     if (rpcError) {
-      // If RPC blocked because plan is active, return immediately without fallback
-      if (rpcError.message.includes('already has an active') || rpcError.message.includes('Active subscription protected')) {
-        return { success: false, status: 'active', error: rpcError.message };
-      }
+      return { success: false, status: 'none', error: rpcError.message };
+    }
 
-      // 2. Fallback to direct table UPDATE (only for non-protected scenarios)
-      const { error: updateError } = await supabase
-        .from('bakeries')
-        .update({
-          subscription_plan: plan,
-          subscription_status: targetStatus,
-          subscription_start: startIso,
-          subscription_end: endIso,
-          updated_at: now.toISOString(),
-        })
-        .eq('id', bakeryId);
+    const rpcResult = rpcData as {
+      success?: boolean;
+      error?: string;
+      subscription_status?: SubscriptionStatus;
+      subscription_start?: string | null;
+      subscription_end?: string | null;
+    } | null;
 
-      if (updateError) {
-        return { success: false, status: 'none', error: updateError.message };
-      }
-
-      // Record in subscription_requests table if paid
-      if (isPaid) {
-        const currentUser = authStore.user;
-        const amount = plan === 'eight_months' ? 829.0 : 920.0;
-        try {
-          await (supabase.from('subscription_requests') as any).insert({
-            bakery_id: bakeryId,
-            bakery_name: currentBakery?.name || 'Bakery',
-            owner_id: currentUser?.id,
-            owner_email: currentUser?.email,
-            owner_phone: currentBakery?.phone,
-            plan,
-            amount,
-            status: 'pending',
-          });
-        } catch {
-          // Non-blocking fallback
-        }
-      }
+    if (!rpcResult?.success) {
+      return { success: false, status: 'none', error: rpcResult?.error ?? 'Unable to submit subscription request.' };
     }
 
     // 3. Immediately refresh current bakery in local Zustand store
@@ -464,9 +439,9 @@ export async function activateBakeryPlan(
       const updatedBakery: Bakery = {
         ...authStore.currentBakery,
         subscription_plan: plan,
-        subscription_status: targetStatus,
-        subscription_start: startIso,
-        subscription_end: endIso,
+        subscription_status: rpcResult.subscription_status ?? targetStatus,
+        subscription_start: rpcResult.subscription_start ?? startIso,
+        subscription_end: rpcResult.subscription_end ?? endIso,
         updated_at: now.toISOString(),
       };
       if (authStore.currentMembership) {
@@ -490,16 +465,9 @@ export async function resetSubscriptionPlan(
   bakeryId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
-      .from('bakeries')
-      .update({
-        subscription_plan: null,
-        subscription_status: 'none',
-        subscription_start: null,
-        subscription_end: null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', bakeryId);
+    const { error } = await supabase.rpc('cancel_pending_subscription_request', {
+      p_bakery_id: bakeryId,
+    });
 
     if (error) {
       return { success: false, error: error.message };
