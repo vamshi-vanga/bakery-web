@@ -471,11 +471,11 @@ export default function POSOrderScreen() {
         </View>
 
         {/* Category Pills (Barbershop minimalist style) */}
-        <View style={{ marginTop: 6 }}>
+        <View style={{ marginTop: 8, marginBottom: 4 }}>
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: 10 }}
+            contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: 10, paddingVertical: 4 }}
             data={categories}
             keyExtractor={(cat) => cat}
             renderItem={({ item: cat }) => {
@@ -488,16 +488,22 @@ export default function POSOrderScreen() {
                     {
                       backgroundColor: isSelected ? colors.primary : colors.surface,
                       borderColor: isSelected ? colors.primary : colors.borderSubtle,
+                      borderWidth: isSelected ? 1.5 : 1,
                       borderRadius: borderRadius.full,
-                      ...shadows.sm,
+                      ...(isSelected ? shadows.md : shadows.sm),
                     },
                   ]}
                   activeOpacity={0.75}
+                  hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
                 >
                   <Text
                     style={[
-                      typography.captionBold,
-                      { color: isSelected ? '#FFFFFF' : colors.text, fontSize: 13 },
+                      typography.bodyBold,
+                      {
+                        color: isSelected ? '#FFFFFF' : colors.text,
+                        fontSize: 15,
+                        fontWeight: isSelected ? '700' : '600',
+                      },
                     ]}
                   >
                     {cat}
@@ -520,12 +526,13 @@ export default function POSOrderScreen() {
                   },
                 ]}
                 activeOpacity={0.7}
+                hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}
               >
-                <Plus size={15} color={colors.primary} />
+                <Plus size={18} color={colors.primary} />
                 <Text
                   style={[
-                    typography.captionBold,
-                    { color: colors.primary, marginLeft: 4, fontSize: 13 },
+                    typography.bodyBold,
+                    { color: colors.primary, marginLeft: 6, fontSize: 15, fontWeight: '600' },
                   ]}
                 >
                   New
@@ -733,8 +740,10 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   categoryPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    minHeight: 46,
+    minWidth: 64,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -742,9 +751,11 @@ const styles = StyleSheet.create({
   addCategoryPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    minHeight: 46,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
   },
   gridContent: {
