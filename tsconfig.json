@@ -20,6 +20,7 @@
   "exclude": [
     "node_modules",
     "supabase",
+    "bakery-web",
     "bakery website sample"
   ]
 }

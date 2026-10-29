@@ -48,6 +48,7 @@ example
 # local copies & data scratch
 *- Copy*
 *- Copy/*
+bakery website sample/
 *.xlsx
 telangana_menu.json
 
