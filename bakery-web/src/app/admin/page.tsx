@@ -132,7 +132,8 @@ function AdminCommandCenter() {
           notification.orderId === orderId ? { ...notification, status: order.status || notification.status } : notification
         );
       }
-      return [{
+
+      const newNotification = {
         orderId,
         customerName: order.customer_name || 'New customer',
         customerPhone: order.customer_phone || '',
@@ -142,11 +143,28 @@ function AdminCommandCenter() {
         receivedAt: new Date().toISOString(),
         read: false,
         status: (order.status || 'pending') as 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled',
-      }, ...current].slice(0, 30);
+      };
+
+      // Browser push notification when a new order arrives
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+          try {
+            new Notification('🧁 New Order Arrived!', {
+              body: `${newNotification.customerName} — ₹${newNotification.total}\n${itemsSummary}`,
+              icon: '/favicon.ico',
+              tag: orderId,
+            });
+          } catch {}
+        } else if (Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+      }
+
+      return [newNotification, ...current].slice(0, 30);
     });
   }, []);
 
-  // Central status updater (Accept ✓: 'preparing', Reject ✕: 'cancelled')
+  // Central status updater (Accept ✓: 'completed', Reject ✕: 'cancelled')
   const handleUpdateOrderStatus = useCallback(async (
     targetId: string,
     newStatus: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled'
@@ -182,6 +200,26 @@ function AdminCommandCenter() {
       }
     } catch (err) {
       console.error('Error updating order status:', err);
+    }
+  }, []);
+
+  // Persistent master inventory tracking toggle
+  const handleToggleInventoryTracking = useCallback(async (val: boolean) => {
+    setInventoryTrackingEnabled(val);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sample_bakery_inventory_tracking', String(val));
+      }
+      await fetch('/api/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PIN || '779911'}`,
+        },
+        body: JSON.stringify({ inventory_tracking_enabled: val }),
+      });
+    } catch (err) {
+      console.error('Failed to save inventory tracking toggle:', err);
     }
   }, []);
 
@@ -226,6 +264,14 @@ function AdminCommandCenter() {
       setCategories(Array.isArray(catsRes) ? catsRes : []);
       setDishes(Array.isArray(itemsRes) ? itemsRes : []);
       const orders = Array.isArray(ledgerRes) ? ledgerRes as LedgerEntry[] : [];
+      
+      // Auto-populate all pending orders into notifications so the bell always lists them
+      orders
+        .filter((o) => (o.status || 'pending') === 'pending')
+        .forEach((order) => {
+          addOrderNotification(order);
+        });
+
       if (ordersLoaded.current) {
         orders.forEach((order) => {
           const orderId = String(order.id || order.order_id || '');
@@ -238,7 +284,16 @@ function AdminCommandCenter() {
       ordersLoaded.current = true;
       setLedger(orders);
       setNotes(Array.isArray(notesRes) ? notesRes : []);
-      if (settingsRes && settingsRes.inventory_tracking_enabled !== undefined) {
+
+      // Check persistent inventory tracking preference first
+      if (typeof window !== 'undefined') {
+        const savedTracking = localStorage.getItem('sample_bakery_inventory_tracking');
+        if (savedTracking !== null) {
+          setInventoryTrackingEnabled(savedTracking === 'true');
+        } else if (settingsRes && settingsRes.inventory_tracking_enabled !== undefined) {
+          setInventoryTrackingEnabled(Boolean(settingsRes.inventory_tracking_enabled));
+        }
+      } else if (settingsRes && settingsRes.inventory_tracking_enabled !== undefined) {
         setInventoryTrackingEnabled(Boolean(settingsRes.inventory_tracking_enabled));
       }
       
@@ -343,7 +398,8 @@ function AdminCommandCenter() {
 
   const unreadNotificationCount = notifications.filter((notification) => !notification.read).length;
   const pendingOrdersCount = ledger.filter((o) => (o.status || 'pending') === 'pending').length;
-  const badgeCount = pendingOrdersCount > 0 ? pendingOrdersCount : unreadNotificationCount;
+  const pendingNotificationsCount = notifications.filter((n) => n.status === 'pending').length;
+  const badgeCount = pendingNotificationsCount > 0 ? pendingNotificationsCount : unreadNotificationCount;
   const activeViewTitle = NAVIGATION.flatMap((group) => group.items).find((item) => item.id === view)?.label || 'Overview';
   const liveUpdatesAvailable = realtimeConnected || sseConnected;
 
@@ -675,7 +731,7 @@ function AdminCommandCenter() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleUpdateOrderStatus(notification.orderId, 'preparing')}
+                                onClick={() => handleUpdateOrderStatus(notification.orderId, 'completed')}
                                 className="flex-1 py-1.5 px-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[11px] flex items-center justify-center gap-1 active:scale-95 transition-all shadow-sm shadow-emerald-500/20"
                                 title="Accept order & confirm revenue (Tick ✓)"
                               >
@@ -798,7 +854,7 @@ function AdminCommandCenter() {
                     categories={categories}
                     onRefresh={() => fetchGlobalTelemetry(true)}
                     inventoryTrackingEnabled={inventoryTrackingEnabled}
-                    onToggleInventoryTracking={(val) => setInventoryTrackingEnabled(val)}
+                    onToggleInventoryTracking={handleToggleInventoryTracking}
                     onNavigateToSettings={() => setView('settings')}
                   />
                 )}
@@ -819,7 +875,7 @@ function AdminCommandCenter() {
                 {view === 'settings' && (
                   <SettingsView 
                     inventoryTrackingEnabled={inventoryTrackingEnabled}
-                    onToggleInventoryTracking={(val) => setInventoryTrackingEnabled(val)}
+                    onToggleInventoryTracking={handleToggleInventoryTracking}
                   />
                 )}
               </motion.div>

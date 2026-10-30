@@ -374,19 +374,9 @@ export default function OrdersHistoryView({
                         <Clock className="w-2.5 h-2.5" /> ⏳ Awaiting Review
                       </span>
                     )}
-                    {order.status === 'preparing' && (
-                      <span className="text-[10px] px-2.5 py-0.5 rounded-md font-mono font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30 flex items-center gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-sky-400 animate-pulse" /> 👨‍🍳 Preparing
-                      </span>
-                    )}
-                    {order.status === 'ready' && (
-                      <span className="text-[10px] px-2.5 py-0.5 rounded-md font-mono font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30 flex items-center gap-1">
-                        📦 Ready
-                      </span>
-                    )}
-                    {order.status === 'completed' && (
+                    {(order.status === 'completed' || order.status === 'preparing' || order.status === 'ready') && (
                       <span className="text-[10px] px-2.5 py-0.5 rounded-md font-mono font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-                        <Check className="w-2.5 h-2.5" /> ✓ Completed
+                        <Check className="w-2.5 h-2.5" /> ✓ Confirmed
                       </span>
                     )}
                     {order.status === 'cancelled' && (
@@ -438,7 +428,7 @@ export default function OrdersHistoryView({
 
                         <button
                           type="button"
-                          onClick={() => handleUpdateOrderStatus(order, 'preparing')}
+                          onClick={() => handleUpdateOrderStatus(order, 'completed')}
                           disabled={updatingOrderId === (order.id || order.order_id)}
                           title="Accept order & confirm sales amount (Tick ✓)"
                           className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/20"
@@ -595,7 +585,7 @@ export default function OrdersHistoryView({
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleUpdateOrderStatus(selectedOrder, 'preparing')}
+                        onClick={() => handleUpdateOrderStatus(selectedOrder, 'completed')}
                         disabled={updatingOrderId === (selectedOrder.id || selectedOrder.order_id)}
                         className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md shadow-emerald-500/20"
                       >
@@ -609,10 +599,18 @@ export default function OrdersHistoryView({
                     isLight ? 'bg-[#FAF7F2] border-[#E8E2D8]' : 'bg-white/5 border-white/10'
                   }`}>
                     <span className={isLight ? 'text-gray-600' : 'text-gray-400'}>Status:</span>
-                    <span className="font-bold capitalize text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                      {selectedOrder.status === 'completed' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
-                      {selectedOrder.status === 'cancelled' && <X className="w-3.5 h-3.5 text-rose-500" />}
-                      {selectedOrder.status || 'Confirmed'}
+                    <span className="font-bold capitalize text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      {selectedOrder.status === 'cancelled' ? (
+                        <>
+                          <X className="w-3.5 h-3.5 text-rose-500" />
+                          <span className="text-rose-500">Rejected</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>Confirmed</span>
+                        </>
+                      )}
                     </span>
                   </div>
                 )}
@@ -727,7 +725,7 @@ export default function OrdersHistoryView({
                   <button
                     type="button"
                     onClick={() => {
-                      handleUpdateOrderStatus(selectedOrder, 'preparing');
+                      handleUpdateOrderStatus(selectedOrder, 'completed');
                       setMobileDetailOpen(false);
                     }}
                     disabled={updatingOrderId === (selectedOrder.id || selectedOrder.order_id)}

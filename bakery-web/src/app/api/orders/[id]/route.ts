@@ -15,10 +15,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const body = await request.json();
 
+    // Map 'confirmed' to database-compatible 'completed' status
+    const mappedStatus = body.status === 'confirmed' ? 'completed' : body.status;
+    const updatePayload = { ...body, ...(mappedStatus ? { status: mappedStatus } : {}) };
+
     // 1. Try to update by primary UUID
     let { data, error } = await supabaseAdmin
       .from('orders')
-      .update(body)
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .maybeSingle();
@@ -27,7 +31,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (!data && (!error || error.code === 'PGRST116')) {
       const retry = await supabaseAdmin
         .from('orders')
-        .update(body)
+        .update(updatePayload)
         .eq('order_id', id)
         .select()
         .maybeSingle();

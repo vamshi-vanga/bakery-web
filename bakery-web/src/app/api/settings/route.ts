@@ -58,14 +58,28 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { data, error } = await supabaseAdmin
+    let { data, error } = await supabaseAdmin
       .from('settings')
       .upsert({ id: 'global', ...body, updated_at: new Date().toISOString() })
       .select()
-      .single();
+      .maybeSingle();
+
+    if (error) {
+      console.warn('Settings full upsert failed, retrying without optional columns:', error.message);
+      const { inventory_tracking_enabled, operating_hours, whatsapp_number, instagram_handle, ...coreBody } = body;
+      const retry = await supabaseAdmin
+        .from('settings')
+        .upsert({ id: 'global', ...coreBody, updated_at: new Date().toISOString() })
+        .select()
+        .maybeSingle();
+      if (!retry.error) {
+        data = { ...retry.data, ...body };
+        error = null;
+      }
+    }
 
     if (error) throw error;
-    return NextResponse.json({ success: true, settings: data });
+    return NextResponse.json({ success: true, settings: data || body });
   } catch (err) {
     console.error('Settings update error:', err);
     return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
