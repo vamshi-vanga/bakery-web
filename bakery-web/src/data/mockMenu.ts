@@ -116,7 +116,7 @@ export const SAMPLE_MENU: MenuItem[] = [
     subcategory: 'Birthday Cakes',
     description: 'Moist golden sponge frosted with rich butterscotch cream, coated in golden caramelized cashew praline nougat for that iconic sweet crunch.',
     price: 450,
-    image_url: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?w=600',
+    image_url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600',
     popular: true,
     available: true,
     track_inventory: true,

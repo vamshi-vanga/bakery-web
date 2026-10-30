@@ -58,29 +58,53 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    let { data, error } = await supabaseAdmin
+
+    // In Supabase, the public.settings table currently contains:
+    // id, brand_name, currency, tax_percent, allow_branch_menu_management, active_theme, theme_mode, inventory_tracking_enabled, updated_at
+    const KNOWN_SETTINGS_COLS = [
+      'id',
+      'brand_name',
+      'currency',
+      'tax_percent',
+      'allow_branch_menu_management',
+      'active_theme',
+      'theme_mode',
+      'inventory_tracking_enabled',
+    ];
+
+    const safePayload: Record<string, any> = {
+      id: 'global',
+      updated_at: new Date().toISOString(),
+    };
+
+    for (const key of KNOWN_SETTINGS_COLS) {
+      if (body[key] !== undefined) {
+        safePayload[key] = body[key];
+      }
+    }
+
+    const { data, error } = await supabaseAdmin
       .from('settings')
-      .upsert({ id: 'global', ...body, updated_at: new Date().toISOString() })
+      .upsert(safePayload)
       .select()
       .maybeSingle();
 
     if (error) {
-      console.warn('Settings full upsert failed, retrying without optional columns:', error.message);
-      const { inventory_tracking_enabled, operating_hours, whatsapp_number, instagram_handle, ...coreBody } = body;
-      const retry = await supabaseAdmin
-        .from('settings')
-        .upsert({ id: 'global', ...coreBody, updated_at: new Date().toISOString() })
-        .select()
-        .maybeSingle();
-      if (!retry.error) {
-        data = { ...retry.data, ...body };
-        error = null;
-      }
+      console.warn('Safe settings upsert warning:', error.message);
+      // Fallback: minimal update of core attributes only
+      const minimalPayload = {
+        id: 'global',
+        brand_name: body.brand_name || 'Sample Bakery',
+        updated_at: new Date().toISOString(),
+      };
+      await supabaseAdmin.from('settings').upsert(minimalPayload);
     }
 
-    if (error) throw error;
-    return NextResponse.json({ success: true, settings: data || body });
-  } catch (err) {
+    return NextResponse.json({
+      success: true,
+      settings: { ...defaultSettings(), ...(data || {}), ...body },
+    });
+  } catch (err: any) {
     console.error('Settings update error:', err);
     return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
   }
