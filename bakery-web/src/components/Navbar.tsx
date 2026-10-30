@@ -19,13 +19,13 @@ export default function Navbar() {
     <>
       <header className="fixed inset-x-0 top-0 z-50 border-b border-espresso/5 bg-cream/90 shadow-sm shadow-espresso/5 backdrop-blur-xl">
         <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="group flex items-center gap-3" aria-label="Sample Bakery home">
+          <Link href="/" className="group flex items-center gap-3" aria-label="Sample Cloud Bakery / Cloud Kitchen home">
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-espresso text-caramel-light shadow-md shadow-espresso/15 transition-transform group-hover:-rotate-6">
               <Cookie className="h-5 w-5" aria-hidden="true" />
             </span>
             <span className="leading-none">
-              <span className="block font-serif text-[1.2rem] font-bold tracking-tight text-espresso">Sample Bakery</span>
-              <span className="mt-1.5 block text-[9px] font-bold uppercase tracking-[0.24em] text-caramel-dark">Bakery &amp; Patisserie</span>
+              <span className="block font-serif text-[1.2rem] font-bold tracking-tight text-espresso">Sample Cloud Bakery</span>
+              <span className="mt-1.5 block text-[9px] font-bold uppercase tracking-[0.24em] text-caramel-dark">Cloud Kitchen</span>
             </span>
           </Link>
 

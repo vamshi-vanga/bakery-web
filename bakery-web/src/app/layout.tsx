@@ -3,9 +3,9 @@ import { CartProvider } from '@/context/CartContext';
 import CartDrawer from '@/components/CartDrawer';
 
 export const metadata = {
-  title: 'Sample Bakery | Freshly Baked Favorites',
-  description: 'Explore Sample Bakery’s freshly baked cakes, pastries, cookies and more. Choose your favorites and place an order request online.',
-  keywords: 'Sample Bakery, bakery, cakes, pastries, cookies, drinks',
+  title: 'Sample Cloud Bakery / Cloud Kitchen | Freshly Baked Favorites',
+  description: 'Explore Sample Cloud Bakery / Cloud Kitchen’s freshly baked cakes, pastries, cookies, and savory snacks. Choose your favorites and place an order request online.',
+  keywords: 'Sample Cloud Bakery, Cloud Kitchen, bakery, cakes, pastries, cookies, snacks, online ordering',
 };
 
 export default function RootLayout({

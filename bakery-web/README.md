@@ -1,4 +1,4 @@
-# 🥐 Sample Bakery
+# 🥐 Sample Cloud Bakery / Cloud Kitchen
 
 A modern, high-aesthetic web application designed specifically for **cloud bakeries** and **premium artisanal bakeries**. Built with **Next.js 15 (App Router)**, **Tailwind CSS v4**, and **Supabase (PostgreSQL, Row Level Security & Storage)**.
 

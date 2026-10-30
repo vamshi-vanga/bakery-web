@@ -7,8 +7,8 @@ export const dynamic = 'force-dynamic';
 function defaultSettings() {
   const whatsappNumber = normalizeWhatsAppNumber(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER);
   return {
-    brand_name: 'Sample Bakery',
-    tagline: 'Freshly baked, made to be shared',
+    brand_name: 'Sample Cloud Bakery / Cloud Kitchen',
+    tagline: 'Freshly baked cloud kitchen favorites, made to be shared',
     currency: '₹',
     tax_percent: 5,
     allow_branch_menu_management: true,
@@ -40,7 +40,9 @@ export async function GET() {
     return NextResponse.json({
       ...defaultSettings(),
       ...data,
-      brand_name: data.brand_name === 'Crumbl Cloud Bakery' ? 'Sample Bakery' : data.brand_name,
+      brand_name: (!data.brand_name || data.brand_name === 'Crumbl Cloud Bakery' || data.brand_name === 'Sample Bakery')
+        ? 'Sample Cloud Bakery / Cloud Kitchen'
+        : data.brand_name,
       whatsapp_number: normalizeWhatsAppNumber(data.whatsapp_number) || normalizeWhatsAppNumber(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER),
       whatsapp_automation_configured: Boolean(
         (normalizeWhatsAppNumber(data.whatsapp_number) || normalizeWhatsAppNumber(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER)) &&
@@ -94,7 +96,7 @@ export async function PUT(request: Request) {
       // Fallback: minimal update of core attributes only
       const minimalPayload = {
         id: 'global',
-        brand_name: body.brand_name || 'Sample Bakery',
+        brand_name: body.brand_name || 'Sample Cloud Bakery / Cloud Kitchen',
         updated_at: new Date().toISOString(),
       };
       await supabaseAdmin.from('settings').upsert(minimalPayload);

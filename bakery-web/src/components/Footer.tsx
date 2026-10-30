@@ -13,13 +13,13 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-5 pb-6 pt-12 sm:px-6 sm:pt-16">
         <div className="grid gap-10 border-b border-white/10 pb-10 sm:grid-cols-[1.2fr_0.8fr_1fr] sm:gap-12 sm:pb-12">
           <div>
-            <Link href="/" className="inline-flex items-center gap-3" aria-label="Sample Bakery home">
+            <Link href="/" className="inline-flex items-center gap-3" aria-label="Sample Cloud Bakery / Cloud Kitchen home">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-caramel-light">
                 <Cookie className="h-5 w-5" aria-hidden="true" />
               </span>
               <span>
-                <span className="block font-serif text-xl font-semibold text-white">Sample Bakery</span>
-                <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.22em] text-caramel-light">Bakery &amp; Patisserie</span>
+                <span className="block font-serif text-xl font-semibold text-white">Sample Cloud Bakery</span>
+                <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.22em] text-caramel-light">Cloud Kitchen</span>
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-6 text-white/55">
@@ -51,7 +51,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-start justify-between gap-2 pt-5 text-xs text-white/35 sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} Sample Bakery</p>
+          <p>© {new Date().getFullYear()} Sample Cloud Bakery / Cloud Kitchen</p>
           <p>Thank you for stopping by.</p>
         </div>
       </div>

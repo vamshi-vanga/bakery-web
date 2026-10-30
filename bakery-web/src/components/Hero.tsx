@@ -88,7 +88,7 @@ export default function Hero() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-espresso/45 via-transparent to-espresso/5" />
           <div className="absolute left-4 top-4 rounded-2xl border border-white/50 bg-white/90 px-4 py-3 shadow-lg backdrop-blur-md sm:left-6 sm:top-6">
-            <p className="text-[10px] font-bold uppercase tracking-[0.19em] text-caramel-dark">Crumbl Cloud</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.19em] text-caramel-dark">Sample Cloud Bakery / Cloud Kitchen</p>
             <p className="mt-1 font-serif text-lg text-espresso">Your sweet little pause</p>
           </div>
           <div className="absolute bottom-4 right-4 max-w-[245px] rounded-2xl bg-cream/95 p-4 shadow-xl backdrop-blur-md sm:bottom-6 sm:right-6 sm:p-5">

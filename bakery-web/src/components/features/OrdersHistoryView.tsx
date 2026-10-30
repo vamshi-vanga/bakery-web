@@ -135,8 +135,8 @@ export default function OrdersHistoryView({
           </style>
         </head>
         <body>
-          <h2>SAMPLE BAKERY</h2>
-          <p class="meta">Artisan Bakery & Cloud Kitchen</p>
+          <h2>SAMPLE CLOUD BAKERY</h2>
+          <p class="meta">Cloud Kitchen & Artisan Bakery</p>
           <p class="meta">Order Ref: ${order.order_id || `#BK-${order.id.slice(0, 4)}`}</p>
           <p class="meta">Date: ${new Date(order.created_at).toLocaleString('en-IN')}</p>
           <hr />
@@ -158,7 +158,7 @@ export default function OrdersHistoryView({
           </div>
           <hr />
           <p style="margin-top:16px; font-weight: bold; font-size: 12px;">Freshly Baked with Passion! 🥐</p>
-          <p class="meta">Thank you for visiting Sample Bakery!</p>
+          <p class="meta">Thank you for ordering from Sample Cloud Bakery / Cloud Kitchen!</p>
           <script>window.print();</script>
         </body>
       </html>

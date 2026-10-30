@@ -134,7 +134,7 @@ export default function CartDrawer() {
               {isCheckoutMode ? <ArrowLeft className="h-4 w-4" aria-hidden="true" /> : <ShoppingBag className="h-4 w-4" aria-hidden="true" />}
             </span>
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-caramel-dark">{isCheckoutMode ? 'Your order' : 'Sample Bakery'}</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-caramel-dark">{isCheckoutMode ? 'Your order' : 'Sample Cloud Bakery / Cloud Kitchen'}</p>
               <h2 id="cart-title" className="font-serif text-xl font-semibold text-espresso">
                 {orderSuccess ? 'Request sent' : isCheckoutMode ? 'A few details' : 'Your bag'}
               </h2>

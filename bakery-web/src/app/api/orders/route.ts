@@ -10,7 +10,7 @@ function buildOrderMessage(order: Record<string, any>) {
     .join('\n');
 
   return [
-    `New Sample Bakery order ${order.order_id}`,
+    `New Sample Cloud Bakery / Cloud Kitchen order ${order.order_id}`,
     `Customer: ${order.customer_name}`,
     `Phone: ${order.customer_phone || 'Not provided'}`,
     `Items:\n${items || 'No items listed'}`,

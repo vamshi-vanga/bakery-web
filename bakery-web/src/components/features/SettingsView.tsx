@@ -35,7 +35,7 @@ export default function SettingsView({
   const [activeTab, setActiveTab] = useState<'profile' | 'theme' | 'inventory' | 'social' | 'security'>('profile');
 
   // Form Fields
-  const [brandName, setBrandName] = useState('Sample Bakery');
+  const [brandName, setBrandName] = useState('Sample Cloud Bakery / Cloud Kitchen');
   const [tagline, setTagline] = useState('Freshly baked, made to be shared');
   const [currency, setCurrency] = useState('₹');
   const [taxPercent, setTaxPercent] = useState('5.00');
@@ -241,7 +241,7 @@ export default function SettingsView({
                     required
                     value={brandName}
                     onChange={(e) => setBrandName(e.target.value)}
-                    placeholder="Sample Bakery"
+                    placeholder="Sample Cloud Bakery / Cloud Kitchen"
                     className={`${inputCls(isLight)} !py-2.5`}
                   />
                   <span className="text-[10px] text-gray-400 mt-1 block">Displayed on customer storefront, receipts, and order headers.</span>
@@ -548,7 +548,7 @@ export default function SettingsView({
                     <span className="font-bold text-xs">WhatsApp Dispatch Number</span>
                   </div>
                   <a
-                    href={whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hi! Testing Sample Bakery WhatsApp order dispatch channel.')}` : undefined}
+                    href={whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hi! Testing Sample Cloud Bakery / Cloud Kitchen WhatsApp order dispatch channel.')}` : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-disabled={!whatsappNumber}

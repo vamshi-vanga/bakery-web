@@ -455,9 +455,14 @@ function AdminCommandCenter() {
               <Crown className="w-4 h-4" />
             </div>
             {!desktopCollapsed && (
-              <span className={`font-serif text-base font-black tracking-wide truncate ${isLight ? 'text-[#1C1917]' : 'text-white'}`}>
-                Sample Bakery
-              </span>
+              <div className="flex flex-col min-w-0">
+                <span className={`font-serif text-sm font-black tracking-wide truncate ${isLight ? 'text-[#1C1917]' : 'text-white'}`}>
+                  Sample Cloud Bakery
+                </span>
+                <span className="text-[9px] font-bold tracking-widest uppercase text-amber-500">
+                  Cloud Kitchen
+                </span>
+              </div>
             )}
           </div>
           <div className="flex items-center">
@@ -939,7 +944,7 @@ export default function AdminPageWrapper() {
       <div className="min-h-screen bg-[#09090B] text-white flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-          <span className="text-xs text-gray-400 font-mono tracking-wider uppercase">Loading Sample Bakery...</span>
+          <span className="text-xs text-gray-400 font-mono tracking-wider uppercase">Loading Sample Cloud Bakery / Cloud Kitchen...</span>
         </div>
       </div>
     );

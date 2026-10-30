@@ -71,7 +71,7 @@ export default function ItemDetailModal({ item, onClose }: ItemDetailModalProps)
               <span className="rounded-full bg-caramel/10 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.16em] text-caramel-dark">{item.category}</span>
               {item.subcategory && <span className="rounded-full border border-border bg-white/65 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-muted">{item.subcategory}</span>}
             </div>
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-caramel-dark">Baked at Sample Bakery</p>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-caramel-dark">Baked at Sample Cloud Bakery / Cloud Kitchen</p>
             <h2 id="product-detail-title" className="font-serif text-3xl font-medium leading-tight text-espresso sm:text-4xl">{item.name}</h2>
             <p className="mt-4 text-sm leading-7 text-charcoal-light">{item.description}</p>
 
