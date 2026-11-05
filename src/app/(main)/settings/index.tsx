@@ -59,6 +59,7 @@ import {
   getUpdateMetadata,
 } from '@/services/updatesService';
 import { getSubscriptionStatus } from '@/services/subscriptionService';
+import { preloadHyderabadStaples } from '@/services/products';
 import { SubscriptionPaywall } from '@/components/subscription/SubscriptionPaywall';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
 import { HeaderNotesButton } from '@/components/notes/HeaderNotesButton';
@@ -107,6 +108,41 @@ export default function SettingsScreen() {
 
   // Vibrations / Haptic Feedback Toggle State
   const [vibrationsEnabled, setVibrationsEnabled] = useState(getHapticsEnabled());
+  const [syncingMenu, setSyncingMenu] = useState(false);
+
+  const handleSyncHyderabadStaples = async () => {
+    if (!currentBakery?.id) return;
+    haptic.medium();
+    Alert.alert(
+      'Sync 32 Hyderabad Core Staples',
+      'This will automatically add the 32 universal Hyderabadi bakery staples (Hot Puff Quartet, Osmania Biscuits, Dum Ke Roat, Dilpasand, Pastries, 500g Cool Cakes, Rolls & Snacks) into your catalog.\n\nExisting products will NOT be overwritten or modified.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Import Staples',
+          style: 'default',
+          onPress: async () => {
+            try {
+              setSyncingMenu(true);
+              const count = await preloadHyderabadStaples(currentBakery.id);
+              haptic.success();
+              Alert.alert(
+                'Menu Synced Successfully',
+                count > 0
+                  ? `Successfully added ${count} new Hyderabad staple items to your bakery catalog!`
+                  : 'All 32 Hyderabad staple items are already present in your menu.'
+              );
+            } catch (err: any) {
+              haptic.error();
+              Alert.alert('Sync Failed', err?.message ?? 'Could not preload staples.');
+            } finally {
+              setSyncingMenu(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const handleToggleVibrations = async (val: boolean) => {
     setVibrationsEnabled(val);
@@ -917,10 +953,10 @@ export default function SettingsScreen() {
                   <Badge
                     label={
                       currentBakery?.scale === 'small'
-                        ? 'Small Scale (45 items)'
+                        ? 'Small Scale (41 staples)'
                         : currentBakery?.scale === 'large'
-                        ? 'Large Scale (320+ items)'
-                        : 'Medium Scale (80 items)'
+                        ? 'Large Scale (330+ items)'
+                        : 'Medium Scale (100 items)'
                     }
                     variant="primary"
                   />
@@ -965,6 +1001,32 @@ export default function SettingsScreen() {
                 </View>
               </View>
             )}
+          </Card>
+
+          {/* Hyderabad Core Menu Staples Card */}
+          <Card style={{ marginTop: spacing.lg }}>
+            <View style={styles.cardHeader}>
+              <View style={styles.row}>
+                <Sparkles size={20} color={colors.primary} />
+                <Text style={[typography.h3, { color: colors.text, marginLeft: 8 }]}>
+                  Hyderabad Menu Staples
+                </Text>
+              </View>
+              <Badge label="32 Common Items" variant="primary" />
+            </View>
+
+            <Text style={[typography.caption, { color: colors.textMuted, marginTop: spacing.xs, marginBottom: spacing.md }]}>
+              The 32 universal items found across Subhan, Niloufer, Karachi, KS Bakers, Swiss Castle, and neighborhood corner bakeries (Puffs, Osmania & Fruit Biscuits, Dum Ke Roat, Dilpasand, Pastries, 500g Cool Cakes, and Fast Food). Common to all bakery scales.
+            </Text>
+
+            <Button
+              title={syncingMenu ? 'Syncing Staples...' : 'Sync 32 Hyderabad Staples to Menu'}
+              variant="outline"
+              size="md"
+              loading={syncingMenu}
+              icon={<Sparkles size={16} color={colors.primary} />}
+              onPress={handleSyncHyderabadStaples}
+            />
           </Card>
 
           {/* Account Details & Security Management */}

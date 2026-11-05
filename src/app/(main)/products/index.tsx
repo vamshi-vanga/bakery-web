@@ -9,6 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -22,6 +23,7 @@ import {
   Folder,
   X,
   Edit3,
+  Sparkles,
 } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/theme';
@@ -29,7 +31,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { MenuItem } from '@/types/database';
-import { fetchProducts } from '@/services/products';
+import { fetchProducts, preloadHyderabadStaples } from '@/services/products';
 import { fetchCategories } from '@/services/categories';
 import { CategoryManageModal } from '@/components/categories/CategoryManageModal';
 import { HeaderProfileButton } from '@/components/profile/HeaderProfileButton';
@@ -52,6 +54,7 @@ export default function ProductsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [preloadingStaples, setPreloadingStaples] = useState(false);
 
   const bakeryId = currentBakery?.id;
 
@@ -71,6 +74,41 @@ export default function ProductsScreen() {
       setRefreshing(false);
     }
   }, [bakeryId]);
+
+  const handlePreloadStaples = async () => {
+    if (!bakeryId) return;
+    haptic.medium();
+    Alert.alert(
+      'Import 32 Hyderabad Staples',
+      'This will automatically add the 32 essential Hyderabad bakery staples (Egg/Veg/Chicken Puffs, Osmania & Fruit Biscuits, Dum Ke Roat, Dilpasand, Pastries, 500g Cool Cakes, Rolls & Snacks) to your catalog.\n\nExisting products will NOT be overwritten.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Import Items',
+          style: 'default',
+          onPress: async () => {
+            try {
+              setPreloadingStaples(true);
+              const count = await preloadHyderabadStaples(bakeryId);
+              haptic.success();
+              await loadData();
+              Alert.alert(
+                'Menu Updated',
+                count > 0
+                  ? `Successfully added ${count} Hyderabad staple items to your bakery catalog!`
+                  : 'All 32 Hyderabad staple items are already present in your catalog.'
+              );
+            } catch (err: any) {
+              haptic.error();
+              Alert.alert('Import Failed', err?.message ?? 'Could not preload items.');
+            } finally {
+              setPreloadingStaples(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -446,17 +484,29 @@ export default function ProductsScreen() {
                 <Text style={[typography.bodyBold, { color: colors.text, marginTop: 12 }]}>
                   {searchQuery ? 'No products match your search' : 'No categories or products yet'}
                 </Text>
-                <Text style={[typography.caption, { color: colors.textMuted, marginTop: 4, textAlign: 'center' }]}>
+                <Text style={[typography.caption, { color: colors.textMuted, marginTop: 4, textAlign: 'center', maxWidth: 320 }]}>
                   {searchQuery
                     ? 'Try searching with another keyword.'
-                    : 'Get started by creating a category or adding your first item.'}
+                    : 'Quickly import the 32 universal Hyderabad bakery staples or add your own custom items.'}
                 </Text>
-                <Button
-                  title="Add First Product"
-                  size="lg"
-                  onPress={() => router.push('/(main)/products/form')}
-                  style={{ marginTop: spacing.lg }}
-                />
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: spacing.lg, width: '100%', maxWidth: 360, justifyContent: 'center' }}>
+                  <Button
+                    title="Add Custom"
+                    variant="outline"
+                    size="md"
+                    onPress={() => router.push('/(main)/products/form')}
+                    style={{ flex: 1 }}
+                  />
+                  <Button
+                    title={preloadingStaples ? 'Importing...' : 'Import 32 Staples'}
+                    variant="primary"
+                    size="md"
+                    loading={preloadingStaples}
+                    icon={<Sparkles size={16} color="#FFFFFF" />}
+                    onPress={handlePreloadStaples}
+                    style={{ flex: 1.2 }}
+                  />
+                </View>
               </View>
             ) : (
               groupedData.map((group) => (

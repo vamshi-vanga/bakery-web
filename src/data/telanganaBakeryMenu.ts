@@ -1,6 +1,9 @@
 /**
- * Preloaded Telangana Bakery Menus & Costs
- * Sourced directly from local Telangana bakery menus (Hyderabad, Secunderabad, Warangal, Nizamabad)
+ * Preloaded Telangana & Hyderabad Bakery Menus & Costs
+ * Sourced directly from local Telangana bakery menus across Hyderabad:
+ * Subhan Bakery, Cafe Niloufer, Karachi Bakery, KS Bakers, Swiss Castle, Vac's, Pista House, etc.
+ * 
+ * Automatically ensures the 32 universal Hyderabadi staple items are present in ALL bakery scales.
  */
 
 export type BakeryScale = 'small' | 'medium' | 'large';
@@ -11,6 +14,7 @@ export interface TelanganaMenuItem {
   price: number;
   unit?: string;
   tier: 'small' | 'medium' | 'large';
+  description?: string;
 }
 
 export interface BakeryScaleOption {
@@ -27,81 +31,716 @@ export const BAKERY_SCALE_OPTIONS: BakeryScaleOption[] = [
   {
     scale: 'small',
     title: 'Small Scale Bakery',
-    subtitle: 'Counter & Hot Snacks (45 items)',
-    badge: 'Essential Staples',
-    itemCount: 45,
-    description: 'Neighborhood hot puff counter, fresh daily milk breads, Osmania & fruit biscuits, and tea-time snacks.',
-    popularItems: ['Veg / Egg / Chicken Puffs', 'Osmania & Fruit Biscuits', 'Milk Bread', 'Pineapple Pastry', 'Veg Roll'],
+    subtitle: 'Counter & Hot Snacks (41 items)',
+    badge: '32 City Staples',
+    itemCount: 41,
+    description: 'The 32 universal Hyderabadi staples: Hot Puff Quartet, Osmania & Fruit Biscuits, Dum Ke Roat, Dilpasand, Pastries, 500g Cool Cakes, and evening snack rolls.',
+    popularItems: ['Egg & Chicken Puffs', 'Osmania & Fruit Biscuits', 'Dilpasand & Cream Bun', 'Black Forest Pastry', 'Dum Ke Roat'],
   },
   {
     scale: 'medium',
     title: 'Medium Scale Bakery',
-    subtitle: 'Full Bakery & Cafe (80 items)',
+    subtitle: 'Full Bakery & Cafe (100 items)',
     badge: 'Most Popular',
-    itemCount: 80,
-    description: 'Full snack counter with burgers, sandwiches, french fries, celebration cakes (500g/1kg), muffins, and shakes.',
-    popularItems: ['Burgers & Sandwiches', 'Black Forest Cake (500g)', 'Margherita Pizza', 'Oreo Shake', 'Peri Peri Fries'],
+    itemCount: 100,
+    description: 'Includes all 32 Hyderabad Staples plus burgers, sandwiches, french fries, pastas, celebration cakes, and milkshakes.',
+    popularItems: ['All 32 Core Staples', 'Burgers & Sandwiches', 'Pastas & Garlic Breads', 'Oreo & KitKat Shakes', 'Peri Peri Fries'],
   },
   {
     scale: 'large',
     title: 'Large Scale Bakery',
-    subtitle: 'Bakery Cafe & Live Kitchen (320+ items)',
+    subtitle: 'Bakery Cafe & Live Kitchen (330+ items)',
     badge: 'Comprehensive',
-    itemCount: 324,
-    description: 'Expansive bakery cafe featuring exotic pizzas, pastas, broasted chicken, dessert cakes, mojitos, and sweets.',
-    popularItems: ['Full Pizza & Pasta Menu', 'Exotic Truffle Cakes', 'Mojitos & Frappes', 'Broasted Chicken', 'Traditional Sweets'],
+    itemCount: 331,
+    description: 'Complete commercial catalog: all 32 staples, exotic pizzas, pastas, broasted chicken, gateaux, mojitos, frappes, and traditional sweets.',
+    popularItems: ['All Core Staples', 'Full Pizza & Pasta Menu', 'Exotic Truffle Cakes', 'Mojitos & Frappes', 'Broasted Chicken'],
   },
 ];
 
-export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
-  {
-    "name": "Veg Puff",
-    "category": "Puffs & Savouries",
-    "price": 20,
-    "unit": "1 piece",
-    "tier": "small"
-  },
+/**
+ * The 32 Universal Hyderabadi Bakery Core Staples (41 menu items itemized for POS).
+ * Automatically included in EVERY bakery scale (small, medium, large).
+ */
+export const HYDERABAD_CORE_STAPLES: TelanganaMenuItem[] = [
   {
     "name": "Egg Puff",
     "category": "Puffs & Savouries",
-    "price": 20,
+    "price": 30,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "small",
+    "description": "The undisputed best-seller—hard-boiled egg nested in caramelized peppery onion-tomato masala in flaky puff pastry"
   },
   {
-    "name": "Paneer Puff",
+    "name": "Veg Puff",
     "category": "Puffs & Savouries",
     "price": 25,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "small",
+    "description": "Golden flaky puff pastry stuffed with spiced mashed potatoes, green peas, carrots, and fresh coriander"
   },
   {
     "name": "Chicken Puff",
     "category": "Puffs & Savouries",
+    "price": 40,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Flaky puff pastry stuffed with shredded chicken cooked in ginger-garlic, garam masala, and green chilies"
+  },
+  {
+    "name": "Paneer Puff",
+    "category": "Puffs & Savouries",
+    "price": 35,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Spiced cottage cheese cubes and scramble in thick onion-tomato gravy wrapped in layered puff pastry"
+  },
+  {
+    "name": "Osmania Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 140,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Hyderabad signature melt-in-mouth shortbread balancing sweet milkiness with a sharp pinch of salt"
+  },
+  {
+    "name": "Fruit Biscuits (Karachi Style)",
+    "category": "Biscuits & Cookies",
+    "price": 150,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crisp butter shortbread cookies studded with candied papaya (tutti-frutti) and crunchy cashew bits"
+  },
+  {
+    "name": "Chand Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 180,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crescent-moon-shaped flaky shortbread cookies dusted with powdered sugar and infused with cardamom"
+  },
+  {
+    "name": "Tie Puff / Khari Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 80,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Light, crisp unsweetened or salted puff pastry twisted into bow-tie shape for dipping in Irani chai"
+  },
+  {
+    "name": "Fine Biscuit",
+    "category": "Biscuits & Cookies",
     "price": 30,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "small",
+    "description": "Giant circular flaky puff pastry glazed with a thin, crackly layer of sugar syrup"
+  },
+  {
+    "name": "Salt / Zeera Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 130,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crisp, savory bite-sized golden cookies flecked with aromatic roasted cumin seeds (zeera)"
+  },
+  {
+    "name": "Coconut Cookies",
+    "category": "Biscuits & Cookies",
+    "price": 160,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crumbly, golden cookies loaded with fragrant toasted desiccated coconut"
+  },
+  {
+    "name": "Cashew & Badam Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 280,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Rich, premium shortbread cookies generously studded with roasted cashew and almond bits"
+  },
+  {
+    "name": "Dum Ke Roat",
+    "category": "Biscuits & Cookies",
+    "price": 320,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Traditional Hyderabadi semolina (sooji), pure ghee and khoya cookies crusted with almonds and raisins"
+  },
+  {
+    "name": "Dilpasand / Dilkhush",
+    "category": "Breads & Buns",
+    "price": 50,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Round flaky crust stuffed with sweetened shredded coconut, tutti-frutti, sugar, and melon seeds"
+  },
+  {
+    "name": "Cream Bun / Malai Bun",
+    "category": "Breads & Buns",
+    "price": 35,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Soft sweet white dinner roll sliced open and slathered with whipped butter-sugar cream"
+  },
+  {
+    "name": "Bun Maska",
+    "category": "Breads & Buns",
+    "price": 45,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Soft, sweet fruit or plain bun generously spread with salted butter, served warm with chai"
+  },
+  {
+    "name": "Milk & Fruit Rusk",
+    "category": "Breads & Buns",
+    "price": 80,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Twice-baked crunchy golden tea toast slices packed with wholesome milky crunch"
+  },
+  {
+    "name": "Milk Bread",
+    "category": "Breads & Buns",
+    "price": 45,
+    "unit": "Loaf (400g)",
+    "tier": "small",
+    "description": "Soft, fresh daily house-baked square white sandwich loaf"
+  },
+  {
+    "name": "Ladi Pav",
+    "category": "Breads & Buns",
+    "price": 40,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Soft, pillowy pull-apart dinner rolls pack for evening snacks and maska"
+  },
+  {
+    "name": "Pineapple Pastry",
+    "category": "Cakes & Pastries",
+    "price": 50,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Vanilla sponge soaked in sugar syrup, layered with fresh cream and pineapple chunks with glace cherry"
+  },
+  {
+    "name": "Black Forest Pastry",
+    "category": "Cakes & Pastries",
+    "price": 60,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Chocolate sponge layered with whipped cream, cherry compote, and rich dark chocolate shavings"
+  },
+  {
+    "name": "Butterscotch Pastry",
+    "category": "Cakes & Pastries",
+    "price": 60,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Caramel sponge covered in golden butterscotch cream and crunchy cashew praline bits"
+  },
+  {
+    "name": "Chocolate Truffle Pastry",
+    "category": "Cakes & Pastries",
+    "price": 80,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Rich dark chocolate sponge layered with pure chocolate ganache and chocolate chips"
+  },
+  {
+    "name": "Plum Cake",
+    "category": "Cakes & Pastries",
+    "price": 45,
+    "unit": "1 slice",
+    "tier": "small",
+    "description": "Dark, caramelized spiced fruit cake packed with raisins and tutti-frutti"
+  },
+  {
+    "name": "Jam Roll / Swiss Roll",
+    "category": "Cakes & Pastries",
+    "price": 40,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Soft vanilla sponge sheet rolled with mixed-fruit red jam and dusted with desiccated coconut"
+  },
+  {
+    "name": "Choco Lava Cake",
+    "category": "Cakes & Pastries",
+    "price": 70,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Individual warm chocolate cake with a decadent molten chocolate center"
+  },
+  {
+    "name": "Walnut Brownie",
+    "category": "Cakes & Pastries",
+    "price": 80,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Dense, fudgy dark chocolate brownie topped with roasted crunchy walnut pieces"
+  },
+  {
+    "name": "Chocolate Donut",
+    "category": "Cakes & Pastries",
+    "price": 50,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Fluffy ring donut dipped in silky dark compound chocolate glaze with rainbow sprinkles"
+  },
+  {
+    "name": "Bakery Veg Burger",
+    "category": "Burgers & Sandwiches",
+    "price": 70,
+    "unit": "1 burger",
+    "tier": "small",
+    "description": "Sesame bun with deep-fried vegetable patty, cucumber, tomato, onion rings, and tangy orange mayo"
+  },
+  {
+    "name": "Bakery Chicken Burger",
+    "category": "Burgers & Sandwiches",
+    "price": 85,
+    "unit": "1 burger",
+    "tier": "small",
+    "description": "Sesame bun with crispy fried chicken patty, onion rings, and sweet-and-spicy burger sauce"
+  },
+  {
+    "name": "Chicken 65 Roll",
+    "category": "Snacks & Starters",
+    "price": 90,
+    "unit": "1 roll",
+    "tier": "small",
+    "description": "Flaky roll stuffed with Hyderabads iconic fiery red-spiced Chicken 65 and mint onions"
+  },
+  {
+    "name": "Paneer Tikka Roll",
+    "category": "Snacks & Starters",
+    "price": 80,
+    "unit": "1 roll",
+    "tier": "small",
+    "description": "Warm roll filled with marinated tandoori paneer cubes, crunchy peppers, and herb mayo"
+  },
+  {
+    "name": "Veg Mayo Cold Sandwich",
+    "category": "Burgers & Sandwiches",
+    "price": 60,
+    "unit": "1 sandwich",
+    "tier": "small",
+    "description": "Triangle-cut sandwich bread stuffed with finely grated cabbage, carrot, and seasoned mayo"
+  },
+  {
+    "name": "Chicken Grilled Mayo Sandwich",
+    "category": "Burgers & Sandwiches",
+    "price": 90,
+    "unit": "1 sandwich",
+    "tier": "small",
+    "description": "Golden grilled sandwich packed with spiced shredded chicken, capsicum, and creamy mayo"
+  },
+  {
+    "name": "Mini Thick-Crust Bakery Pizza",
+    "category": "Pizzas & Pastas",
+    "price": 120,
+    "unit": "1 pizza",
+    "tier": "small",
+    "description": "6-inch thick-crust bakery pizza topped with spicy tomato sauce, onions, capsicum, corn, and cheese"
+  },
+  {
+    "name": "Irani Lukhmi (Keema)",
+    "category": "Snacks & Starters",
+    "price": 35,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Crisp square Hyderabadi pastry pocket stuffed with savory spiced minced chicken or mutton"
+  },
+  {
+    "name": "Irani Patti Samosa",
+    "category": "Snacks & Starters",
+    "price": 25,
+    "unit": "2 pieces",
+    "tier": "small",
+    "description": "Crisp thin-sheet triangular Irani chai samosas stuffed with spiced onion and sweet corn"
+  },
+  {
+    "name": "Pineapple Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 450,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick fresh cream pineapple birthday cake with pineapple chunks, cherry and piping zone"
+  },
+  {
+    "name": "Black Forest Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 480,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick chocolate sponge layered with whipped cream, cherries, and dark chocolate curls"
+  },
+  {
+    "name": "Butterscotch Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 480,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick butterscotch celebration cake topped with crunchy golden cashew praline"
+  },
+  {
+    "name": "Chocolate Truffle Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 550,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick rich Belgian chocolate ganache celebration cake with dark chocolate glaze"
+  }
+];
+
+export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
+  {
+    "name": "Egg Puff",
+    "category": "Puffs & Savouries",
+    "price": 30,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "The undisputed best-seller—hard-boiled egg nested in caramelized peppery onion-tomato masala in flaky puff pastry"
+  },
+  {
+    "name": "Veg Puff",
+    "category": "Puffs & Savouries",
+    "price": 25,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Golden flaky puff pastry stuffed with spiced mashed potatoes, green peas, carrots, and fresh coriander"
+  },
+  {
+    "name": "Chicken Puff",
+    "category": "Puffs & Savouries",
+    "price": 40,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Flaky puff pastry stuffed with shredded chicken cooked in ginger-garlic, garam masala, and green chilies"
+  },
+  {
+    "name": "Paneer Puff",
+    "category": "Puffs & Savouries",
+    "price": 35,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Spiced cottage cheese cubes and scramble in thick onion-tomato gravy wrapped in layered puff pastry"
+  },
+  {
+    "name": "Osmania Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 140,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Hyderabad signature melt-in-mouth shortbread balancing sweet milkiness with a sharp pinch of salt"
+  },
+  {
+    "name": "Fruit Biscuits (Karachi Style)",
+    "category": "Biscuits & Cookies",
+    "price": 150,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crisp butter shortbread cookies studded with candied papaya (tutti-frutti) and crunchy cashew bits"
+  },
+  {
+    "name": "Chand Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 180,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crescent-moon-shaped flaky shortbread cookies dusted with powdered sugar and infused with cardamom"
+  },
+  {
+    "name": "Tie Puff / Khari Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 80,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Light, crisp unsweetened or salted puff pastry twisted into bow-tie shape for dipping in Irani chai"
+  },
+  {
+    "name": "Fine Biscuit",
+    "category": "Biscuits & Cookies",
+    "price": 30,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Giant circular flaky puff pastry glazed with a thin, crackly layer of sugar syrup"
+  },
+  {
+    "name": "Salt / Zeera Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 130,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crisp, savory bite-sized golden cookies flecked with aromatic roasted cumin seeds (zeera)"
+  },
+  {
+    "name": "Coconut Cookies",
+    "category": "Biscuits & Cookies",
+    "price": 160,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Crumbly, golden cookies loaded with fragrant toasted desiccated coconut"
+  },
+  {
+    "name": "Cashew & Badam Biscuits",
+    "category": "Biscuits & Cookies",
+    "price": 280,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Rich, premium shortbread cookies generously studded with roasted cashew and almond bits"
+  },
+  {
+    "name": "Dum Ke Roat",
+    "category": "Biscuits & Cookies",
+    "price": 320,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Traditional Hyderabadi semolina (sooji), pure ghee and khoya cookies crusted with almonds and raisins"
+  },
+  {
+    "name": "Dilpasand / Dilkhush",
+    "category": "Breads & Buns",
+    "price": 50,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Round flaky crust stuffed with sweetened shredded coconut, tutti-frutti, sugar, and melon seeds"
+  },
+  {
+    "name": "Cream Bun / Malai Bun",
+    "category": "Breads & Buns",
+    "price": 35,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Soft sweet white dinner roll sliced open and slathered with whipped butter-sugar cream"
+  },
+  {
+    "name": "Bun Maska",
+    "category": "Breads & Buns",
+    "price": 45,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Soft, sweet fruit or plain bun generously spread with salted butter, served warm with chai"
+  },
+  {
+    "name": "Milk & Fruit Rusk",
+    "category": "Breads & Buns",
+    "price": 80,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Twice-baked crunchy golden tea toast slices packed with wholesome milky crunch"
+  },
+  {
+    "name": "Milk Bread",
+    "category": "Breads & Buns",
+    "price": 45,
+    "unit": "Loaf (400g)",
+    "tier": "small",
+    "description": "Soft, fresh daily house-baked square white sandwich loaf"
+  },
+  {
+    "name": "Ladi Pav",
+    "category": "Breads & Buns",
+    "price": 40,
+    "unit": "Pack",
+    "tier": "small",
+    "description": "Soft, pillowy pull-apart dinner rolls pack for evening snacks and maska"
+  },
+  {
+    "name": "Pineapple Pastry",
+    "category": "Cakes & Pastries",
+    "price": 50,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Vanilla sponge soaked in sugar syrup, layered with fresh cream and pineapple chunks with glace cherry"
+  },
+  {
+    "name": "Black Forest Pastry",
+    "category": "Cakes & Pastries",
+    "price": 60,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Chocolate sponge layered with whipped cream, cherry compote, and rich dark chocolate shavings"
+  },
+  {
+    "name": "Butterscotch Pastry",
+    "category": "Cakes & Pastries",
+    "price": 60,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Caramel sponge covered in golden butterscotch cream and crunchy cashew praline bits"
+  },
+  {
+    "name": "Chocolate Truffle Pastry",
+    "category": "Cakes & Pastries",
+    "price": 80,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Rich dark chocolate sponge layered with pure chocolate ganache and chocolate chips"
+  },
+  {
+    "name": "Plum Cake",
+    "category": "Cakes & Pastries",
+    "price": 45,
+    "unit": "1 slice",
+    "tier": "small",
+    "description": "Dark, caramelized spiced fruit cake packed with raisins and tutti-frutti"
+  },
+  {
+    "name": "Jam Roll / Swiss Roll",
+    "category": "Cakes & Pastries",
+    "price": 40,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Soft vanilla sponge sheet rolled with mixed-fruit red jam and dusted with desiccated coconut"
+  },
+  {
+    "name": "Choco Lava Cake",
+    "category": "Cakes & Pastries",
+    "price": 70,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Individual warm chocolate cake with a decadent molten chocolate center"
+  },
+  {
+    "name": "Walnut Brownie",
+    "category": "Cakes & Pastries",
+    "price": 80,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Dense, fudgy dark chocolate brownie topped with roasted crunchy walnut pieces"
+  },
+  {
+    "name": "Chocolate Donut",
+    "category": "Cakes & Pastries",
+    "price": 50,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Fluffy ring donut dipped in silky dark compound chocolate glaze with rainbow sprinkles"
+  },
+  {
+    "name": "Bakery Veg Burger",
+    "category": "Burgers & Sandwiches",
+    "price": 70,
+    "unit": "1 burger",
+    "tier": "small",
+    "description": "Sesame bun with deep-fried vegetable patty, cucumber, tomato, onion rings, and tangy orange mayo"
+  },
+  {
+    "name": "Bakery Chicken Burger",
+    "category": "Burgers & Sandwiches",
+    "price": 85,
+    "unit": "1 burger",
+    "tier": "small",
+    "description": "Sesame bun with crispy fried chicken patty, onion rings, and sweet-and-spicy burger sauce"
+  },
+  {
+    "name": "Chicken 65 Roll",
+    "category": "Snacks & Starters",
+    "price": 90,
+    "unit": "1 roll",
+    "tier": "small",
+    "description": "Flaky roll stuffed with Hyderabads iconic fiery red-spiced Chicken 65 and mint onions"
+  },
+  {
+    "name": "Paneer Tikka Roll",
+    "category": "Snacks & Starters",
+    "price": 80,
+    "unit": "1 roll",
+    "tier": "small",
+    "description": "Warm roll filled with marinated tandoori paneer cubes, crunchy peppers, and herb mayo"
+  },
+  {
+    "name": "Veg Mayo Cold Sandwich",
+    "category": "Burgers & Sandwiches",
+    "price": 60,
+    "unit": "1 sandwich",
+    "tier": "small",
+    "description": "Triangle-cut sandwich bread stuffed with finely grated cabbage, carrot, and seasoned mayo"
+  },
+  {
+    "name": "Chicken Grilled Mayo Sandwich",
+    "category": "Burgers & Sandwiches",
+    "price": 90,
+    "unit": "1 sandwich",
+    "tier": "small",
+    "description": "Golden grilled sandwich packed with spiced shredded chicken, capsicum, and creamy mayo"
+  },
+  {
+    "name": "Mini Thick-Crust Bakery Pizza",
+    "category": "Pizzas & Pastas",
+    "price": 120,
+    "unit": "1 pizza",
+    "tier": "small",
+    "description": "6-inch thick-crust bakery pizza topped with spicy tomato sauce, onions, capsicum, corn, and cheese"
+  },
+  {
+    "name": "Irani Lukhmi (Keema)",
+    "category": "Snacks & Starters",
+    "price": 35,
+    "unit": "1 piece",
+    "tier": "small",
+    "description": "Crisp square Hyderabadi pastry pocket stuffed with savory spiced minced chicken or mutton"
+  },
+  {
+    "name": "Irani Patti Samosa",
+    "category": "Snacks & Starters",
+    "price": 25,
+    "unit": "2 pieces",
+    "tier": "small",
+    "description": "Crisp thin-sheet triangular Irani chai samosas stuffed with spiced onion and sweet corn"
+  },
+  {
+    "name": "Pineapple Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 450,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick fresh cream pineapple birthday cake with pineapple chunks, cherry and piping zone"
+  },
+  {
+    "name": "Black Forest Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 480,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick chocolate sponge layered with whipped cream, cherries, and dark chocolate curls"
+  },
+  {
+    "name": "Butterscotch Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 480,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick butterscotch celebration cake topped with crunchy golden cashew praline"
+  },
+  {
+    "name": "Chocolate Truffle Cool Cake (500g)",
+    "category": "Cakes & Pastries",
+    "price": 550,
+    "unit": "500g",
+    "tier": "small",
+    "description": "Ready-to-pick rich Belgian chocolate ganache celebration cake with dark chocolate glaze"
   },
   {
     "name": "Butter Paneer Puff",
     "category": "Puffs & Savouries",
     "price": 45,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Butter Chicken Puff",
     "category": "Puffs & Savouries",
     "price": 45,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "French Fries",
     "category": "Snacks & Starters",
     "price": 75,
     "unit": "1 serving",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Peri Peri Fries",
@@ -150,14 +789,14 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Burgers & Sandwiches",
     "price": 60,
     "unit": "1 burger",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Veg Cheese Burger",
     "category": "Burgers & Sandwiches",
     "price": 70,
     "unit": "1 burger",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Veg Grilled Burger",
@@ -185,7 +824,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Burgers & Sandwiches",
     "price": 70,
     "unit": "1 burger",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Chicken Cheese Burger",
@@ -227,7 +866,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Burgers & Sandwiches",
     "price": 70,
     "unit": "1 sandwich",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Veg Cheese Grill Sandwich",
@@ -290,7 +929,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Snacks & Starters",
     "price": 50,
     "unit": "1 roll",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Veg Hot Dog Roll",
@@ -311,7 +950,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Snacks & Starters",
     "price": 60,
     "unit": "1 roll",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Chicken Hot Dog Roll",
@@ -319,13 +958,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "price": 90,
     "unit": "1 roll",
     "tier": "large"
-  },
-  {
-    "name": "Chicken 65 Roll",
-    "category": "Snacks & Starters",
-    "price": 100,
-    "unit": "1 roll",
-    "tier": "small"
   },
   {
     "name": "Chicken Popcorn Roll",
@@ -468,34 +1100,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Pineapple Pastry",
-    "category": "Cakes & Pastries",
-    "price": 30,
-    "unit": "1 piece",
-    "tier": "small"
-  },
-  {
-    "name": "Butterscotch Pastry",
-    "category": "Cakes & Pastries",
-    "price": 35,
-    "unit": "1 piece",
-    "tier": "small"
-  },
-  {
-    "name": "Black Forest Pastry",
-    "category": "Cakes & Pastries",
-    "price": 40,
-    "unit": "1 piece",
-    "tier": "small"
-  },
-  {
-    "name": "Chocolate Truffle Pastry",
-    "category": "Cakes & Pastries",
-    "price": 70,
-    "unit": "1 piece",
-    "tier": "small"
-  },
-  {
     "name": "Casata Pastry",
     "category": "Cakes & Pastries",
     "price": 70,
@@ -514,14 +1118,14 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Traditional Sweets",
     "price": 50,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Choco Lava",
     "category": "Cakes & Pastries",
     "price": 50,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Chocolate Brownie",
@@ -529,13 +1133,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "price": 50,
     "unit": "1 piece",
     "tier": "medium"
-  },
-  {
-    "name": "Bun Maska",
-    "category": "Breads & Buns",
-    "price": 45,
-    "unit": "1 piece",
-    "tier": "large"
   },
   {
     "name": "Choco Vanilla Cake",
@@ -664,20 +1261,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Basil Sauce Pizza",
-    "category": "Pizzas & Pastas",
-    "price": 289,
-    "unit": "Small",
-    "tier": "large"
-  },
-  {
-    "name": "Pepper Pesto Pizza",
-    "category": "Pizzas & Pastas",
-    "price": 289,
-    "unit": "Small",
-    "tier": "large"
-  },
-  {
     "name": "Classic Aloo Tikka Burger",
     "category": "Burgers & Sandwiches",
     "price": 109,
@@ -783,13 +1366,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Boiled Egg Sandwich",
-    "category": "Burgers & Sandwiches",
-    "price": 109,
-    "unit": "1 sandwich",
-    "tier": "large"
-  },
-  {
     "name": "Omelette Sandwich",
     "category": "Burgers & Sandwiches",
     "price": 149,
@@ -874,13 +1450,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Chicken Popcorn",
-    "category": "Snacks & Starters",
-    "price": 199,
-    "unit": "Small; listed as 6 pcs",
-    "tier": "medium"
-  },
-  {
     "name": "Chicken Wings",
     "category": "Snacks & Starters",
     "price": 240,
@@ -892,7 +1461,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Snacks & Starters",
     "price": 79,
     "unit": "6 pieces",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Cheesy Balls",
@@ -1011,14 +1580,14 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Biscuits & Cookies",
     "price": 200,
     "unit": "Listed price; unit not stated",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Khara Biscuit",
     "category": "Biscuits & Cookies",
     "price": 140,
     "unit": "Listed price; unit not stated",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Chicken 65 Pizza",
@@ -1028,27 +1597,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Chicken Pizza",
-    "category": "Pizzas & Pastas",
-    "price": 150,
-    "unit": "10 inches",
-    "tier": "medium"
-  },
-  {
-    "name": "Chicken 65 Burger",
-    "category": "Burgers & Sandwiches",
-    "price": 110,
-    "unit": "1 burger",
-    "tier": "large"
-  },
-  {
-    "name": "Chicken 65 Roll",
-    "category": "Snacks & Starters",
-    "price": 80,
-    "unit": "1 roll",
-    "tier": "small"
-  },
-  {
     "name": "Grilled Rumali Chicken",
     "category": "Snacks & Starters",
     "price": 80,
@@ -1056,46 +1604,32 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Milk Bread",
-    "category": "Breads & Buns",
-    "price": 40,
-    "unit": "Listed price; weight not stated",
-    "tier": "small"
-  },
-  {
     "name": "Till Toast",
     "category": "Breads & Buns",
     "price": 45,
     "unit": "Listed price; pack size not stated",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Fruit Toast",
     "category": "Breads & Buns",
     "price": 45,
     "unit": "Listed price; pack size not stated",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Slice Cake",
     "category": "Cakes & Pastries",
     "price": 85,
     "unit": "250 g",
-    "tier": "small"
-  },
-  {
-    "name": "Chocolate Donut",
-    "category": "Cakes & Pastries",
-    "price": 45,
-    "unit": "1 piece",
-    "tier": "large"
+    "tier": "medium"
   },
   {
     "name": "Osmania Biscuit",
     "category": "Biscuits & Cookies",
     "price": 75,
     "unit": "Unit/pack not stated",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Dry Fruit Laddu",
@@ -1144,14 +1678,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Breads & Buns",
     "price": 45,
     "unit": "1 piece",
-    "tier": "small"
-  },
-  {
-    "name": "Chicken Burger",
-    "category": "Burgers & Sandwiches",
-    "price": 70,
-    "unit": "1 burger",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Dilkhush",
@@ -1175,32 +1702,18 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Plum Cake",
-    "category": "Cakes & Pastries",
-    "price": 40,
-    "unit": "Size not visible",
-    "tier": "small"
-  },
-  {
-    "name": "Fine Biscuit",
-    "category": "Biscuits & Cookies",
-    "price": 10,
-    "unit": "Unit/pack not stated",
-    "tier": "large"
-  },
-  {
     "name": "Bun",
     "category": "Breads & Buns",
     "price": 8,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Sheermal",
     "category": "Breads & Buns",
     "price": 15,
     "unit": "1 piece",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Til Toast",
@@ -1378,21 +1891,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Veg Roll",
-    "category": "Snacks & Starters",
-    "price": 35,
-    "unit": "1 piece",
-    "tier": "small"
-  },
-  {
     "name": "Veg Spring Roll",
-    "category": "Snacks & Starters",
-    "price": 35,
-    "unit": "1 piece",
-    "tier": "large"
-  },
-  {
-    "name": "Paneer Tikka Roll",
     "category": "Snacks & Starters",
     "price": 35,
     "unit": "1 piece",
@@ -1432,13 +1931,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "price": 50,
     "unit": "1 piece",
     "tier": "large"
-  },
-  {
-    "name": "Chicken Roll",
-    "category": "Snacks & Starters",
-    "price": 40,
-    "unit": "1 piece",
-    "tier": "small"
   },
   {
     "name": "Chicken Tikka Roll",
@@ -1504,32 +1996,11 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Veg Burger",
-    "category": "Burgers & Sandwiches",
-    "price": 60,
-    "unit": "1 burger",
-    "tier": "small"
-  },
-  {
     "name": "Veg Corn Burger",
     "category": "Burgers & Sandwiches",
     "price": 65,
     "unit": "1 burger",
     "tier": "large"
-  },
-  {
-    "name": "Paneer Tikka Burger",
-    "category": "Burgers & Sandwiches",
-    "price": 75,
-    "unit": "1 burger",
-    "tier": "large"
-  },
-  {
-    "name": "Chicken Burger",
-    "category": "Burgers & Sandwiches",
-    "price": 65,
-    "unit": "1 burger",
-    "tier": "small"
   },
   {
     "name": "Mini Veg Pizza",
@@ -1609,13 +2080,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Veg Corn Pizza",
-    "category": "Pizzas & Pastas",
-    "price": 110,
-    "unit": "Medium",
-    "tier": "large"
-  },
-  {
     "name": "Veg Cutlet Pizza",
     "category": "Pizzas & Pastas",
     "price": 110,
@@ -1640,20 +2104,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "name": "Chicken Mix Pizza",
     "category": "Pizzas & Pastas",
     "price": 110,
-    "unit": "Medium",
-    "tier": "large"
-  },
-  {
-    "name": "Chicken Hot Mexican Pizza",
-    "category": "Pizzas & Pastas",
-    "price": 110,
-    "unit": "Medium",
-    "tier": "large"
-  },
-  {
-    "name": "Chicken Tikka Pizza",
-    "category": "Pizzas & Pastas",
-    "price": 130,
     "unit": "Medium",
     "tier": "large"
   },
@@ -1721,13 +2171,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Plum Cake",
-    "category": "Cakes & Pastries",
-    "price": 15,
-    "unit": "50 g",
-    "tier": "small"
-  },
-  {
     "name": "Plum / Butter Cream Cake",
     "category": "Cakes & Pastries",
     "price": 340,
@@ -1791,13 +2234,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Chocolate Brownie",
-    "category": "Cakes & Pastries",
-    "price": 50,
-    "unit": "1 piece",
-    "tier": "medium"
-  },
-  {
     "name": "Doughnut (any flavour)",
     "category": "Cakes & Pastries",
     "price": 50,
@@ -1830,14 +2266,14 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Biscuits & Cookies",
     "price": 280,
     "unit": "Per kg",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Badam Biscuit",
     "category": "Biscuits & Cookies",
     "price": 280,
     "unit": "Per kg",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Coconut Biscuit",
@@ -1858,14 +2294,14 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Biscuits & Cookies",
     "price": 240,
     "unit": "Per kg",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Salt Biscuit",
     "category": "Biscuits & Cookies",
     "price": 240,
     "unit": "Per kg",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Tea Biscuit",
@@ -1924,13 +2360,6 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "tier": "large"
   },
   {
-    "name": "Dilkhush",
-    "category": "Breads & Buns",
-    "price": 16,
-    "unit": "1 piece",
-    "tier": "large"
-  },
-  {
     "name": "Dilpasand",
     "category": "Breads & Buns",
     "price": 16,
@@ -1963,7 +2392,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Biscuits & Cookies",
     "price": 160,
     "unit": "500 g",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Fruit Cookies",
@@ -1977,7 +2406,7 @@ export const TELANGANA_BAKERY_MENU: TelanganaMenuItem[] = [
     "category": "Biscuits & Cookies",
     "price": 160,
     "unit": "500 g",
-    "tier": "small"
+    "tier": "medium"
   },
   {
     "name": "Honey Corn Cookies",

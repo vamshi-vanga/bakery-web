@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { MenuItem } from '@/types/database';
+import { HYDERABAD_CORE_STAPLES } from '@/data/telanganaBakeryMenu';
 import { cacheProducts, getCachedProducts } from './offlineStorage';
 
 export interface CreateProductInput {
@@ -147,4 +148,25 @@ export async function archiveProduct(productId: string, bakeryId: string): Promi
     console.error('Error archiving product:', error);
     throw new Error(error.message);
   }
+}
+
+/**
+ * Preload the 32 universal Hyderabadi core staple items into a bakery's menu.
+ * Safe & idempotent: skips any items that already exist with the same name.
+ */
+export async function preloadHyderabadStaples(bakeryId: string): Promise<number> {
+  const { data, error } = await supabase.rpc('preload_bakery_menu', {
+    p_bakery_id: bakeryId,
+    p_items: HYDERABAD_CORE_STAPLES,
+  });
+
+  if (error) {
+    console.error('Error preloading Hyderabad staples:', error);
+    throw new Error(error.message);
+  }
+
+  // Refresh products in background
+  await fetchProducts(bakeryId);
+
+  return (data as any)?.count ?? 0;
 }
