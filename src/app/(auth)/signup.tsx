@@ -95,8 +95,8 @@ export default function SignupScreen() {
   };
 
   const handleVerifyOtp = async () => {
-    if (!otpCode.trim() || otpCode.trim().length < 6) {
-      setErrorMessage('Please enter the complete 8-digit code.');
+    if (!otpCode.trim() || otpCode.trim().length !== 6) {
+      setErrorMessage('Please enter the complete 6-digit code.');
       return;
     }
 
@@ -193,7 +193,7 @@ export default function SignupScreen() {
           </Text>
           <Text style={[typography.subtitle, { color: colors.textMuted, marginTop: spacing.xs }]}>
             {step === 'otp'
-              ? 'Enter the 8-digit code sent to your inbox'
+              ? 'Enter the 6-digit code sent to your inbox'
               : 'Join as bakery owner or staff'}
           </Text>
         </View>
@@ -368,11 +368,11 @@ export default function SignupScreen() {
 
             <Input
               label="Verification Code"
-              placeholder="e.g. 12345678"
+              placeholder="e.g. 123456"
               value={otpCode}
               onChangeText={setOtpCode}
               keyboardType="number-pad"
-              maxLength={8}
+              maxLength={6}
               autoFocus
               leftIcon={<ShieldCheck size={20} color={colors.primary} />}
             />

@@ -52,7 +52,7 @@ export default function ForgotPasswordScreen() {
       }
 
       haptic.success();
-      setSuccessMessage(`A recovery code has been sent to ${email.trim()}`);
+      setSuccessMessage(`A 6-digit recovery code has been sent to ${email.trim()}`);
 
       // Auto-navigate to reset password screen after a brief delay
       setTimeout(() => {
@@ -106,8 +106,8 @@ export default function ForgotPasswordScreen() {
               ]}
             >
               {successMessage
-                ? 'We sent a recovery code to reset your account password.'
-                : 'Enter your registered email and we will send a recovery code.'}
+                ? 'We sent a 6-digit recovery code to reset your account password.'
+                : 'Enter your registered email and we will send a 6-digit recovery code.'}
             </Text>
           </View>
 

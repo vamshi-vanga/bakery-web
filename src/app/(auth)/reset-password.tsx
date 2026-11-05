@@ -47,7 +47,7 @@ export default function ResetPasswordScreen() {
   const [resendCooldown, setResendCooldown] = useState(60);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(
-    params.email ? `Check ${params.email} for your recovery code.` : null
+    params.email ? `Check ${params.email} for your 6-digit recovery code.` : null
   );
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -63,7 +63,7 @@ export default function ResetPasswordScreen() {
   }, [resendCooldown]);
 
   const handleOtpChange = (text: string) => {
-    const cleaned = text.replace(/[^0-9]/g, '').slice(0, 8);
+    const cleaned = text.replace(/[^0-9]/g, '').slice(0, 6);
     setOtpCode(cleaned);
     setErrorMessage(null);
   };
@@ -76,9 +76,9 @@ export default function ResetPasswordScreen() {
       return;
     }
 
-    if (otpCode.trim().length < 6) {
+    if (otpCode.trim().length !== 6) {
       haptic.error();
-      setErrorMessage('Please enter the complete 8-digit recovery code.');
+      setErrorMessage('Please enter the complete 6-digit recovery code.');
       return;
     }
 
@@ -243,13 +243,13 @@ export default function ResetPasswordScreen() {
     return (
       <View style={styles.boxesWrapper}>
         <View style={styles.groupContainer}>
-          {[0, 1, 2, 3].map(renderDigitBox)}
+          {[0, 1, 2].map(renderDigitBox)}
         </View>
         <View style={styles.separator}>
           <Text style={[styles.separatorText, { color: colors.textMuted }]}>–</Text>
         </View>
         <View style={styles.groupContainer}>
-          {[4, 5, 6, 7].map(renderDigitBox)}
+          {[3, 4, 5].map(renderDigitBox)}
         </View>
       </View>
     );
@@ -302,7 +302,7 @@ export default function ResetPasswordScreen() {
               {isSuccess
                 ? 'Your password has been successfully updated.'
                 : step === 1
-                ? 'Enter the verification code sent to your email, then click Next.'
+                ? 'Enter the 6-digit recovery code sent to your email, then click Next.'
                 : 'Enter your new password two times to confirm.'}
             </Text>
 
@@ -407,7 +407,7 @@ export default function ResetPasswordScreen() {
                   Recovery Code (OTP) *
                 </Text>
                 <Text style={[typography.caption, { color: colors.textMuted }]}>
-                  {otpCode.length > 0 ? `${otpCode.length}/8 digits` : '8 digits'}
+                  {otpCode.length > 0 ? `${otpCode.length}/6 digits` : '6 digits'}
                 </Text>
               </View>
 
@@ -425,7 +425,7 @@ export default function ResetPasswordScreen() {
                 value={otpCode}
                 onChangeText={handleOtpChange}
                 keyboardType="number-pad"
-                maxLength={8}
+                maxLength={6}
                 style={styles.hiddenInput}
                 caretHidden
                 autoFocus
@@ -435,7 +435,7 @@ export default function ResetPasswordScreen() {
                 title={loading ? 'Verifying OTP...' : 'Next'}
                 onPress={handleVerifyOtp}
                 loading={loading}
-                disabled={otpCode.length < 6 || loading}
+                disabled={otpCode.length !== 6 || loading}
                 size="lg"
                 icon={<ArrowRight size={18} color="#FFFFFF" />}
                 style={{ marginTop: spacing.md }}
@@ -621,8 +621,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   digitBox: {
-    width: 38,
-    height: 48,
+    width: 44,
+    height: 52,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',

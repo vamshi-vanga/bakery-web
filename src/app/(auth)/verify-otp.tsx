@@ -30,7 +30,7 @@ export default function VerifyOtpScreen() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(
-    params.email ? `We sent an 8-digit verification code to ${params.email}` : null
+    params.email ? `We sent a 6-digit verification code to ${params.email}` : null
   );
 
   const [resendCooldown, setResendCooldown] = useState(60);
@@ -62,8 +62,8 @@ export default function VerifyOtpScreen() {
       return;
     }
 
-    if (code.length < 6) {
-      setErrorMessage('Please enter your complete 8-digit verification code.');
+    if (code.length !== 6) {
+      setErrorMessage('Please enter your complete 6-digit verification code.');
       return;
     }
 
@@ -100,13 +100,13 @@ export default function VerifyOtpScreen() {
   };
 
   const handleOtpChange = (text: string) => {
-    // Only accept numeric digits up to 8
-    const cleaned = text.replace(/[^0-9]/g, '').slice(0, 8);
+    // Only accept numeric digits up to 6
+    const cleaned = text.replace(/[^0-9]/g, '').slice(0, 6);
     setOtpCode(cleaned);
     setErrorMessage(null);
 
-    // Auto-verify when all 8 digits are typed
-    if (cleaned.length === 8 && !isVerifyingRef.current) {
+    // Auto-verify when all 6 digits are typed
+    if (cleaned.length === 6 && !isVerifyingRef.current) {
       handleVerify(cleaned);
     }
   };
@@ -181,13 +181,13 @@ export default function VerifyOtpScreen() {
     return (
       <View style={styles.boxesWrapper}>
         <View style={styles.groupContainer}>
-          {[0, 1, 2, 3].map(renderDigitBox)}
+          {[0, 1, 2].map(renderDigitBox)}
         </View>
         <View style={styles.separator}>
           <Text style={[styles.separatorText, { color: colors.textMuted }]}>–</Text>
         </View>
         <View style={styles.groupContainer}>
-          {[4, 5, 6, 7].map(renderDigitBox)}
+          {[3, 4, 5].map(renderDigitBox)}
         </View>
       </View>
     );
@@ -231,7 +231,7 @@ export default function VerifyOtpScreen() {
           >
             {isSuccess
               ? 'Your account is ready. Entering setup...'
-              : 'Enter the 8-digit OTP code sent to your email'}
+              : 'Enter the 6-digit OTP code sent to your email'}
           </Text>
         </View>
 
@@ -302,7 +302,7 @@ export default function VerifyOtpScreen() {
             value={otpCode}
             onChangeText={handleOtpChange}
             keyboardType="number-pad"
-            maxLength={8}
+            maxLength={6}
             style={styles.hiddenInput}
             caretHidden
             autoFocus
@@ -312,7 +312,7 @@ export default function VerifyOtpScreen() {
             title={verifying ? 'Verifying...' : 'Verify & Continue'}
             onPress={() => handleVerify()}
             loading={verifying}
-            disabled={otpCode.length < 6 || verifying}
+            disabled={otpCode.length !== 6 || verifying}
             size="lg"
             style={{ marginTop: spacing.lg }}
           />
@@ -396,26 +396,26 @@ const styles = StyleSheet.create({
   },
   groupContainer: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 8,
   },
   separator: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   separatorText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
   },
   digitBox: {
-    width: 32,
-    height: 48,
+    width: 44,
+    height: 52,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   digitText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: '700',
   },
   hiddenInput: {
